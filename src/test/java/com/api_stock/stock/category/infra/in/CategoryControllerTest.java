@@ -140,7 +140,7 @@ class CategoryControllerTest {
 
     @Test
     void shouldReturnConflictWhenCategoryNameAlreadyExists() throws Exception {
-        doThrow(new CategoryAlreadyExistException()).when(categoryHandler).createCategory(any(CategoryRequest.class));
+        doThrow(new CategoryAlreadyExistException("")).when(categoryHandler).createCategory(any(CategoryRequest.class));
 
         mvc.perform(post("/categories/")
                         .contentType(MediaType.APPLICATION_JSON)

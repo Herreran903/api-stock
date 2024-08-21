@@ -7,9 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ExceptionMessage {
 
-    CATEGORY_ALREADY_EXISTS("There is already a category with that name"),
-    FIELD_TOO_LONG("The field '%s' exceeds the maximum length of %d characters"),
-    FIELD_EMPTY("The field '%s' is empty");
+    CATEGORY_ALREADY_EXISTS("There is already a category with that name");
 
     private final String message;
 

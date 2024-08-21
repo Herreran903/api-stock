@@ -1,5 +1,6 @@
 package com.api_stock.stock.category.domain.usecase;
 
+import com.api_stock.stock.category.domain.exception.ex.EmptyFieldException;
 import com.api_stock.stock.category.domain.exception.ex.MaxLengthExceededException;
 import com.api_stock.stock.category.domain.model.Category;
 import com.api_stock.stock.category.domain.spi.ICategoryPersistencePort;
@@ -46,6 +47,40 @@ class CategoryCreateUseCaseTest {
 
         assertThrows(
                 MaxLengthExceededException.class, () -> categoryCreateUseCase.createCategory(category)
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenNameIsNull() {
+        Category category = new Category(1L, null, "Description");
+
+        assertThrows(
+                EmptyFieldException.class, () -> categoryCreateUseCase.createCategory(category)
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenNameIsEmpty() {
+        Category category = new Category(1L, "", "Description");
+
+        assertThrows(
+                EmptyFieldException.class, () -> categoryCreateUseCase.createCategory(category)
+        );
+    }
+
+    @Test void shouldThrowExceptionWhenDescriptionIsNull() {
+        Category category = new Category(1L, "Name", null);
+
+        assertThrows(
+                EmptyFieldException.class, () -> categoryCreateUseCase.createCategory(category)
+        );
+    }
+
+    @Test void shouldThrowExceptionWhenDescriptionIsEmpty() {
+        Category category = new Category(1L, "Name", "");
+
+        assertThrows(
+                EmptyFieldException.class, () -> categoryCreateUseCase.createCategory(category)
         );
     }
 
