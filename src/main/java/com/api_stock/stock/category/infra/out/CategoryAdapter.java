@@ -3,7 +3,7 @@ package com.api_stock.stock.category.infra.out;
 import com.api_stock.stock.category.domain.model.Category;
 import com.api_stock.stock.category.domain.model.CategoryPage;
 import com.api_stock.stock.category.domain.spi.ICategoryPersistencePort;
-import com.api_stock.stock.category.infra.exception.ExceptionMessage;
+import com.api_stock.stock.category.infra.exception.InfraExceptionMessage;
 import com.api_stock.stock.category.infra.exception.ex.CategoryAlreadyExistException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,7 +25,7 @@ public class CategoryAdapter implements ICategoryPersistencePort {
     @Override
     public void createCategory(Category category) {
         if (repository.findByName(category.getName()).isPresent()) {
-            throw new CategoryAlreadyExistException(ExceptionMessage.CATEGORY_ALREADY_EXISTS.getMessage());
+            throw new CategoryAlreadyExistException(InfraExceptionMessage.CATEGORY_ALREADY_EXISTS.getMessage());
         }
 
         repository.save(mapper.toEntity(category));

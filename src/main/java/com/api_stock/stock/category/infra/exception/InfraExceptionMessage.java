@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum ExceptionMessage {
+public enum InfraExceptionMessage {
 
     CATEGORY_ALREADY_EXISTS("There is already a category with that name");
 

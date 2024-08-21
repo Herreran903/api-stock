@@ -4,6 +4,7 @@ import com.api_stock.stock.category.domain.exception.ex.EmptyFieldException;
 import com.api_stock.stock.category.domain.exception.ex.MaxLengthExceededException;
 import com.api_stock.stock.category.domain.model.Category;
 import com.api_stock.stock.category.domain.spi.ICategoryPersistencePort;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -21,7 +22,8 @@ class CategoryCreateUseCaseTest {
     @InjectMocks
     private CategoryCreateUseCase categoryCreateUseCase;
 
-    public CategoryCreateUseCaseTest() {
+    @BeforeEach
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
