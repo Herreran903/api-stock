@@ -14,4 +14,9 @@ public final class Constants {
         NAME,
         DESCRIPTION
     }
+
+    public enum Sort {
+        DESC,
+        ASC,
+    }
 }

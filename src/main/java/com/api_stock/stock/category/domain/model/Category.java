@@ -1,7 +1,5 @@
 package com.api_stock.stock.category.domain.model;
 
-import com.api_stock.stock.category.domain.exception.ex.EmptyFieldException;
-
 public class Category {
 
     private Long id;
@@ -9,11 +7,6 @@ public class Category {
     private String description;
 
     public Category(Long id, String name, String description) {
-        if (name == null || name.trim().isEmpty())
-            throw new EmptyFieldException("name");
-
-        if (description == null || description.trim().isEmpty())
-            throw new EmptyFieldException("description");
 
         this.id = id;
         this.name = name;
