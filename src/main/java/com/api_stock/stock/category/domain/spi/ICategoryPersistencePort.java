@@ -1,8 +1,11 @@
-package com.api_stock.stock.category.domain.api;
+package com.api_stock.stock.category.domain.spi;
 
 import com.api_stock.stock.category.domain.model.Category;
 import com.api_stock.stock.category.domain.model.CategoryPage;
 
-public interface ICategoriesGetByPageServicePort {
+public interface ICategoryPersistencePort {
+
+    void createCategory(Category category);
     CategoryPage<Category> getCategoriesByPage(int page, int size, String sortDirection);
+    Boolean isBradPresentByName(String categoryName);
 }

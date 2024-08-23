@@ -1,8 +1,10 @@
 package com.api_stock.stock.brand.infra.config;
 
 import com.api_stock.stock.brand.domain.api.IBrandCreateServicePort;
+import com.api_stock.stock.brand.domain.api.IBrandsGetByPageServicePort;
 import com.api_stock.stock.brand.domain.spi.IBrandPersistencePort;
 import com.api_stock.stock.brand.domain.usecase.BrandCreateUseCase;
+import com.api_stock.stock.brand.domain.usecase.BrandsGetByPageUseCase;
 import com.api_stock.stock.brand.infra.out.BrandAdapter;
 import com.api_stock.stock.brand.infra.out.IBrandMapper;
 import com.api_stock.stock.brand.infra.out.IBrandRepository;
@@ -25,5 +27,10 @@ public class BeanBrandConfig {
     @Bean
     public IBrandCreateServicePort brandCreateServicePort() {
         return new BrandCreateUseCase(brandPersistencePort());
+    }
+
+    @Bean
+    public IBrandsGetByPageServicePort brandsGetByPageServicePort() {
+        return new BrandsGetByPageUseCase(brandPersistencePort());
     }
 }

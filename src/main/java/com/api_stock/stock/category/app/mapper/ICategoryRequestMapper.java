@@ -1,7 +1,7 @@
 package com.api_stock.stock.category.app.mapper;
 
 import com.api_stock.stock.category.app.dto.CategoryRequest;
-import com.api_stock.stock.category.domain.model.Brand;
+import com.api_stock.stock.category.domain.model.Category;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
@@ -10,5 +10,5 @@ import org.mapstruct.ReportingPolicy;
         unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ICategoryRequestMapper {
 
-    Brand toCategory(CategoryRequest categoryRequest);
+    Category toCategory(CategoryRequest categoryRequest);
 }

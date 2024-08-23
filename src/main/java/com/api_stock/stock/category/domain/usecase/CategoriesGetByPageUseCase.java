@@ -3,21 +3,21 @@ package com.api_stock.stock.category.domain.usecase;
 import com.api_stock.stock.category.domain.api.ICategoriesGetByPageServicePort;
 import com.api_stock.stock.category.domain.exception.CategoryExceptionMessage;
 import com.api_stock.stock.category.domain.exception.ex.CategoryNotValidParameterException;
-import com.api_stock.stock.category.domain.model.Brand;
+import com.api_stock.stock.category.domain.model.Category;
 import com.api_stock.stock.category.domain.model.CategoryPage;
-import com.api_stock.stock.category.domain.spi.IBrandPersistencePort;
+import com.api_stock.stock.category.domain.spi.ICategoryPersistencePort;
 import com.api_stock.stock.category.domain.util.CategoryConstants;
 
 public class CategoriesGetByPageUseCase implements ICategoriesGetByPageServicePort {
 
-    private final IBrandPersistencePort categoryPersistencePort;
+    private final ICategoryPersistencePort categoryPersistencePort;
 
-    public CategoriesGetByPageUseCase(IBrandPersistencePort categoryPersistencePort) {
+    public CategoriesGetByPageUseCase(ICategoryPersistencePort categoryPersistencePort) {
         this.categoryPersistencePort = categoryPersistencePort;
     }
 
     @Override
-    public CategoryPage<Brand> getCategoriesByPage(int page, int size, String sortDirection) {
+    public CategoryPage<Category> getCategoriesByPage(int page, int size, String sortDirection) {
 
         if (!(CategoryConstants.Sort.ASC.toString().equalsIgnoreCase(sortDirection) ||
                 CategoryConstants.Sort.DESC.toString().equalsIgnoreCase(sortDirection)))

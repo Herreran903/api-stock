@@ -1,6 +1,6 @@
 package com.api_stock.stock.category.infra.out;
 
-import com.api_stock.stock.category.domain.model.Brand;
+import com.api_stock.stock.category.domain.model.Category;
 import com.api_stock.stock.category.domain.model.CategoryPage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,13 +35,13 @@ class CategoryAdapterTest {
 
     @Test
     void shouldCreateCategorySuccessfully() {
-        Brand brand = new Brand(1L, "Electronics", "Devices and gadgets");
+        Category category = new Category(1L, "Electronics", "Devices and gadgets");
         CategoryEntity categoryEntity = new CategoryEntity();
 
         when(repository.findByName("Electronics")).thenReturn(Optional.empty());
-        when(mapper.toEntity(brand)).thenReturn(categoryEntity);
+        when(mapper.toEntity(category)).thenReturn(categoryEntity);
 
-        categoryAdapter.createCategory(brand);
+        categoryAdapter.createCategory(category);
 
         verify(repository).save(categoryEntity);
     }
@@ -54,19 +54,19 @@ class CategoryAdapterTest {
         String orderDirection = "ASC";
 
         List<CategoryEntity> entities = List.of(
-                new CategoryEntity(1L, "name","desc"),
-                new CategoryEntity(2L, "name1", "desc"));
+                new CategoryEntity(1L, "Electronics","Devices and gadgets"),
+                new CategoryEntity(2L, "Electronics1", "Devices and gadgets"));
         Page<CategoryEntity> pageResult = new PageImpl<>(entities, PageRequest.of(page, size), entities.size());
         when(repository.findAll(any(Pageable.class))).thenReturn(pageResult);
 
-        List<Brand> categories = List.of(
-                new Brand(1L, "name","desc"),
-                new Brand(2L, "name1", "desc"));
+        List<Category> categories = List.of(
+                new Category(1L, "Electronics","Devices and gadgets"),
+                new Category(2L, "Electronics1", "Devices and gadgets"));
 
         when(mapper.toCategoriesList(entities)).thenReturn(categories);
 
         //Act
-        CategoryPage<Brand> result = categoryAdapter.getCategoriesByPage(page, size, orderDirection);
+        CategoryPage<Category> result = categoryAdapter.getCategoriesByPage(page, size, orderDirection);
 
         //Assert
         assertEquals(entities.size(), result.getData().size());
