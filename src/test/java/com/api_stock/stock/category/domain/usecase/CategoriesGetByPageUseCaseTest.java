@@ -1,10 +1,10 @@
 package com.api_stock.stock.category.domain.usecase;
 
-import com.api_stock.stock.category.domain.exception.ExceptionMessage;
+import com.api_stock.stock.category.domain.exception.CategoryExceptionMessage;
 import com.api_stock.stock.category.domain.exception.ex.CategoryNotValidParameterException;
-import com.api_stock.stock.category.domain.model.Category;
+import com.api_stock.stock.category.domain.model.Brand;
 import com.api_stock.stock.category.domain.model.CategoryPage;
-import com.api_stock.stock.category.domain.spi.ICategoryPersistencePort;
+import com.api_stock.stock.category.domain.spi.IBrandPersistencePort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
 class CategoriesGetByPageUseCaseTest {
 
     @Mock
-    private ICategoryPersistencePort categoryPersistencePort;
+    private IBrandPersistencePort categoryPersistencePort;
 
     @InjectMocks
     private CategoriesGetByPageUseCase categoriesGetByPageUseCase;
@@ -34,7 +34,7 @@ class CategoriesGetByPageUseCaseTest {
         assertThrows(
                 CategoryNotValidParameterException.class,
                 () -> categoriesGetByPageUseCase.getCategoriesByPage(0, 10, "INVALID"),
-                ExceptionMessage.INVALID_SORT_DIRECTION
+                CategoryExceptionMessage.INVALID_SORT_DIRECTION
         );
     }
 
@@ -43,7 +43,7 @@ class CategoriesGetByPageUseCaseTest {
         assertThrows(
                 CategoryNotValidParameterException.class,
                 () -> categoriesGetByPageUseCase.getCategoriesByPage(-1, 10, "ASC"),
-                ExceptionMessage.NO_NEGATIVE_PAGE
+                CategoryExceptionMessage.NO_NEGATIVE_PAGE
         );
     }
 
@@ -52,13 +52,13 @@ class CategoriesGetByPageUseCaseTest {
         assertThrows(
                 CategoryNotValidParameterException.class,
                 () -> categoriesGetByPageUseCase.getCategoriesByPage(0, 0, "ASC"),
-                ExceptionMessage.GREATER_ZERO_SIZE
+                CategoryExceptionMessage.GREATER_ZERO_SIZE
         );
 
         assertThrows(
                 CategoryNotValidParameterException.class,
                 () -> categoriesGetByPageUseCase.getCategoriesByPage(0, -1, "ASC"),
-                ExceptionMessage.GREATER_ZERO_SIZE
+                CategoryExceptionMessage.GREATER_ZERO_SIZE
         );
     }
 
@@ -68,8 +68,8 @@ class CategoriesGetByPageUseCaseTest {
         int size = 10;
         String sortDirection = "ASC";
 
-        CategoryPage<Category> expectedCategoryPage = new CategoryPage<>(
-                List.of(new Category(1L, "name", "desc")),
+        CategoryPage<Brand> expectedCategoryPage = new CategoryPage<>(
+                List.of(new Brand(1L, "name", "desc")),
                 page,
                 1,
                 true,
@@ -80,7 +80,7 @@ class CategoriesGetByPageUseCaseTest {
 
         when(categoryPersistencePort.getCategoriesByPage(page, size, sortDirection)).thenReturn(expectedCategoryPage);
 
-        CategoryPage<Category> result = categoriesGetByPageUseCase.getCategoriesByPage(page, size, sortDirection);
+        CategoryPage<Brand> result = categoriesGetByPageUseCase.getCategoriesByPage(page, size, sortDirection);
 
         assertEquals(expectedCategoryPage, result);
         verify(categoryPersistencePort, times(1)).getCategoriesByPage(page, size, sortDirection);

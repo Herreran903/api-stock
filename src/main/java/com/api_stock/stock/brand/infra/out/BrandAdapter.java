@@ -17,4 +17,9 @@ public class BrandAdapter implements IBrandPersistencePort {
     public void createBrand(Brand brand) {
         repository.save(mapper.toEntity(brand));
     }
+
+    @Override
+    public Boolean isBrandPresentByName(String brandName) {
+        return repository.findByName(brandName).isPresent();
+    }
 }

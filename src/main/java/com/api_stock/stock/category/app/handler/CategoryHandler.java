@@ -6,7 +6,7 @@ import com.api_stock.stock.category.app.mapper.ICategoryRequestMapper;
 import com.api_stock.stock.category.app.mapper.ICategoryResponseMapper;
 import com.api_stock.stock.category.domain.api.ICategoryCreateServicePort;
 import com.api_stock.stock.category.domain.api.ICategoriesGetByPageServicePort;
-import com.api_stock.stock.category.domain.model.Category;
+import com.api_stock.stock.category.domain.model.Brand;
 import com.api_stock.stock.category.domain.model.CategoryPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,13 +21,13 @@ public class CategoryHandler implements ICategoryHandler {
     private final ICategoryResponseMapper categoryResponseMapper;
 
     @Override
-    public void createCategory(CategoryRequest categoryRequest) {
+    public void createBrand(CategoryRequest categoryRequest) {
         categoryCreateService.createCategory(categoryRequestMapper.toCategory(categoryRequest));
     }
 
     @Override
     public CategoryPage<CategoryResponse> getCategoriesByPage(int page, int size, String sortDirection) {
-        CategoryPage<Category> categories = getCategoriesByPageService.getCategoriesByPage(page, size, sortDirection);
+        CategoryPage<Brand> categories = getCategoriesByPageService.getCategoriesByPage(page, size, sortDirection);
 
         return categoryResponseMapper.toPageResponse(categories);
     }

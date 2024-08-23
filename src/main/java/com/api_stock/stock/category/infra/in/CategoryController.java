@@ -40,7 +40,7 @@ public class CategoryController {
     )
     @PostMapping("/")
     public ResponseEntity<Void> createCategory(@Valid @RequestBody CategoryRequest categoryRequest) {
-        categoryHandler.createCategory(categoryRequest);
+        categoryHandler.createBrand(categoryRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

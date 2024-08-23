@@ -1,6 +1,6 @@
 package com.api_stock.stock.category.infra.out;
 
-import com.api_stock.stock.category.domain.model.Category;
+import com.api_stock.stock.category.domain.model.Brand;
 import com.api_stock.stock.category.domain.model.CategoryPage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,13 +35,13 @@ class CategoryAdapterTest {
 
     @Test
     void shouldCreateCategorySuccessfully() {
-        Category category = new Category(1L, "Electronics", "Devices and gadgets");
+        Brand brand = new Brand(1L, "Electronics", "Devices and gadgets");
         CategoryEntity categoryEntity = new CategoryEntity();
 
         when(repository.findByName("Electronics")).thenReturn(Optional.empty());
-        when(mapper.toEntity(category)).thenReturn(categoryEntity);
+        when(mapper.toEntity(brand)).thenReturn(categoryEntity);
 
-        categoryAdapter.createCategory(category);
+        categoryAdapter.createCategory(brand);
 
         verify(repository).save(categoryEntity);
     }
@@ -59,14 +59,14 @@ class CategoryAdapterTest {
         Page<CategoryEntity> pageResult = new PageImpl<>(entities, PageRequest.of(page, size), entities.size());
         when(repository.findAll(any(Pageable.class))).thenReturn(pageResult);
 
-        List<Category> categories = List.of(
-                new Category(1L, "name","desc"),
-                new Category(2L, "name1", "desc"));
+        List<Brand> categories = List.of(
+                new Brand(1L, "name","desc"),
+                new Brand(2L, "name1", "desc"));
 
         when(mapper.toCategoriesList(entities)).thenReturn(categories);
 
         //Act
-        CategoryPage<Category> result = categoryAdapter.getCategoriesByPage(page, size, orderDirection);
+        CategoryPage<Brand> result = categoryAdapter.getCategoriesByPage(page, size, orderDirection);
 
         //Assert
         assertEquals(entities.size(), result.getData().size());

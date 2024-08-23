@@ -1,8 +1,8 @@
 package com.api_stock.stock.category.domain.api;
 
-import com.api_stock.stock.category.domain.model.Category;
+import com.api_stock.stock.category.domain.model.Brand;
 
 public interface ICategoryCreateServicePort {
 
-    void createCategory(Category category);
+    void createCategory(Brand brand);
 }

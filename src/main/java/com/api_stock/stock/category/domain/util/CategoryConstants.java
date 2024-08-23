@@ -1,8 +1,8 @@
 package com.api_stock.stock.category.domain.util;
 
-public final class Constants {
+public final class CategoryConstants {
 
-    private Constants() {
+    private CategoryConstants() {
         throw new AssertionError();
     }
 

@@ -1,12 +1,12 @@
 package com.api_stock.stock.common.exception;
 
-import com.api_stock.stock.category.domain.exception.ExceptionMessage;
+import com.api_stock.stock.brand.domain.exception.ex.BrandNotValidParameterException;
+import com.api_stock.stock.category.domain.exception.CategoryExceptionMessage;
 import com.api_stock.stock.category.domain.exception.ex.CategoryAlreadyExistException;
 import com.api_stock.stock.category.domain.exception.ex.CategoryNotValidFieldException;
 import com.api_stock.stock.category.domain.exception.ex.CategoryNotValidParameterException;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
-import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class AdviceHandler {
 
+    //Category
     @ExceptionHandler(CategoryAlreadyExistException.class)
     public ResponseEntity<ExceptionDetails> handleCategoryAlreadyExistException(CategoryAlreadyExistException ex, WebRequest request) {
         ExceptionDetails details = new ExceptionDetails(
@@ -50,14 +51,12 @@ public class AdviceHandler {
         return new ResponseEntity<>(details, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<ExceptionDetails> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+    @ExceptionHandler(CategoryNotValidParameterException.class)
+    public ResponseEntity<ExceptionDetails> handleInvalidParameterException(CategoryNotValidParameterException ex) {
         ExceptionDetails details = new ExceptionDetails(
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                String.format(ExceptionMessage.INVALID_TYPE_PARAM,
-                        ex.getName(),
-                        Objects.requireNonNull(ex.getRequiredType()).getSimpleName()),
+                ex.getMessage(),
                 "",
                 LocalDateTime.now()
         );
@@ -65,12 +64,55 @@ public class AdviceHandler {
         return new ResponseEntity<>(details, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(CategoryNotValidParameterException.class)
-    public ResponseEntity<ExceptionDetails> handleInvalidParameterException(CategoryNotValidParameterException ex) {
+    //Brand
+    @ExceptionHandler(com.api_stock.stock.brand.domain.exception.ex.BrandAlreadyExistException.class)
+    public ResponseEntity<ExceptionDetails> handleCategoryAlreadyExistException(com.api_stock.stock.brand.domain.exception.ex.BrandAlreadyExistException ex, WebRequest request) {
+        ExceptionDetails details = new ExceptionDetails(
+                HttpStatus.CONFLICT.value(),
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage(),
+                request.getDescription(false),
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(details, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(com.api_stock.stock.brand.domain.exception.ex.BrandNotValidFieldException.class)
+    public ResponseEntity<ExceptionDetails> handleMaxLengthExceededException(com.api_stock.stock.brand.domain.exception.ex.BrandNotValidFieldException ex) {
         ExceptionDetails details = new ExceptionDetails(
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
                 ex.getMessage(),
+                "",
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(details, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(BrandNotValidParameterException.class)
+    public ResponseEntity<ExceptionDetails> handleInvalidParameterException(BrandNotValidParameterException ex) {
+        ExceptionDetails details = new ExceptionDetails(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                "",
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(details, HttpStatus.BAD_REQUEST);
+    }
+
+    //General
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ExceptionDetails> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException ex) {
+        ExceptionDetails details = new ExceptionDetails(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                String.format(CategoryExceptionMessage.INVALID_TYPE_PARAM,
+                        ex.getName(),
+                        Objects.requireNonNull(ex.getRequiredType()).getSimpleName()),
                 "",
                 LocalDateTime.now()
         );
@@ -87,7 +129,7 @@ public class AdviceHandler {
         if (ex.getCause() instanceof MismatchedInputException mie) {
             fieldName = !mie.getPath().isEmpty() ? mie.getPath().get(0).getFieldName() : "Unknown";
             requiredType = mie.getTargetType() != null ? mie.getTargetType().getSimpleName() : "Unknown";
-            message = String.format(ExceptionMessage.INVALID_TYPE_PARAM,
+            message = String.format(CategoryExceptionMessage.INVALID_TYPE_PARAM,
                     Objects.requireNonNull(fieldName),
                     Objects.requireNonNull(requiredType));
         }
@@ -95,7 +137,7 @@ public class AdviceHandler {
         ExceptionDetails details = new ExceptionDetails(
                 HttpStatus.BAD_REQUEST.value(),
                 HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                message.isEmpty() ? ExceptionMessage.BAD_JSON_CATEGORY : message,
+                message.isEmpty() ? CategoryExceptionMessage.BAD_JSON_CATEGORY : message,
                 "",
                 LocalDateTime.now()
         );
@@ -120,21 +162,5 @@ public class AdviceHandler {
         );
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(details);
-    }
-
-    @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ExceptionDetails> handleConstraintViolationException(ConstraintViolationException ex) {
-
-        String errorMessage = ex.getConstraintViolations().iterator().next().getMessage();
-
-        ExceptionDetails details = new ExceptionDetails(
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                errorMessage,
-                "",
-                LocalDateTime.now()
-        );
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(details);
     }
 }

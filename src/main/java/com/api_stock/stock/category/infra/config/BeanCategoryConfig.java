@@ -2,8 +2,8 @@ package com.api_stock.stock.category.infra.config;
 
 import com.api_stock.stock.category.domain.api.ICategoryCreateServicePort;
 import com.api_stock.stock.category.domain.api.ICategoriesGetByPageServicePort;
-import com.api_stock.stock.category.domain.spi.ICategoryPersistencePort;
-import com.api_stock.stock.category.domain.usecase.CategoryCreateUseCase;
+import com.api_stock.stock.category.domain.spi.IBrandPersistencePort;
+import com.api_stock.stock.category.domain.usecase.BrandCreateUseCase;
 import com.api_stock.stock.category.domain.usecase.CategoriesGetByPageUseCase;
 import com.api_stock.stock.category.infra.out.CategoryAdapter;
 import com.api_stock.stock.category.infra.out.ICategoryMapper;
@@ -20,13 +20,13 @@ public class BeanCategoryConfig {
     private final ICategoryMapper categoryMapper;
 
     @Bean
-    public ICategoryPersistencePort categoryPersistence() {
+    public IBrandPersistencePort categoryPersistence() {
         return new CategoryAdapter(categoryRepository, categoryMapper);
     }
 
     @Bean
     public ICategoryCreateServicePort categoryCreateService() {
-        return new CategoryCreateUseCase(categoryPersistence());
+        return new BrandCreateUseCase(categoryPersistence());
     }
 
     @Bean

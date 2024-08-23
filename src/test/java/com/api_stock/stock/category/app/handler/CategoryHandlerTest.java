@@ -6,7 +6,7 @@ import com.api_stock.stock.category.app.mapper.ICategoryRequestMapper;
 import com.api_stock.stock.category.app.mapper.ICategoryResponseMapper;
 import com.api_stock.stock.category.domain.api.ICategoryCreateServicePort;
 import com.api_stock.stock.category.domain.api.ICategoriesGetByPageServicePort;
-import com.api_stock.stock.category.domain.model.Category;
+import com.api_stock.stock.category.domain.model.Brand;
 import com.api_stock.stock.category.domain.model.CategoryPage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,13 +42,13 @@ class CategoryHandlerTest {
     @Test
     void shouldCallCreateCategoryOnCategoryCreateService() {
         CategoryRequest categoryRequest = new CategoryRequest("Electronics", "Devices and gadgets");
-        Category category = new Category(1L, "Electronics", "Devices and gadgets");
+        Brand brand = new Brand(1L, "Electronics", "Devices and gadgets");
 
-        when(categoryRequestMapper.toCategory(categoryRequest)).thenReturn(category);
+        when(categoryRequestMapper.toCategory(categoryRequest)).thenReturn(brand);
 
-        categoryHandler.createCategory(categoryRequest);
+        categoryHandler.createBrand(categoryRequest);
 
-        verify(categoryCreateService).createCategory(category);
+        verify(categoryCreateService, times(1)).createCategory(brand);
     }
 
     @Test
@@ -57,7 +57,7 @@ class CategoryHandlerTest {
         int size = 10;
         String sortDirection = "ASC";
 
-        CategoryPage<Category> mockCategoryPage = mock(CategoryPage.class);
+        CategoryPage<Brand> mockCategoryPage = mock(CategoryPage.class);
         CategoryPage<CategoryResponse> mockResponsePage = mock(CategoryPage.class);
 
         when(getCategoriesByPageService.getCategoriesByPage(page, size, sortDirection)).thenReturn(mockCategoryPage);

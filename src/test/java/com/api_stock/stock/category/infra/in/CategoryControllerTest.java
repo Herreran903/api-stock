@@ -2,7 +2,7 @@ package com.api_stock.stock.category.infra.in;
 
 import com.api_stock.stock.category.app.dto.CategoryRequest;
 import com.api_stock.stock.category.app.handler.ICategoryHandler;
-import com.api_stock.stock.category.domain.exception.ExceptionMessage;
+import com.api_stock.stock.category.domain.exception.CategoryExceptionMessage;
 import com.api_stock.stock.category.domain.exception.ex.CategoryAlreadyExistException;
 import com.api_stock.stock.category.domain.exception.ex.CategoryNotValidFieldException;
 import com.api_stock.stock.category.domain.exception.ex.CategoryNotValidParameterException;
@@ -32,7 +32,7 @@ class CategoryControllerTest {
 
     @Test
     void shouldReturnBadRequestIfCategoryNameIsNull() throws Exception {
-        String expectedMessage = ExceptionMessage.EMPTY_NAME;
+        String expectedMessage = CategoryExceptionMessage.EMPTY_NAME;
 
         doAnswer(invocation -> {
             CategoryRequest request = invocation.getArgument(0);
@@ -40,7 +40,7 @@ class CategoryControllerTest {
                 throw new CategoryNotValidFieldException(expectedMessage);
             }
             return null;
-        }).when(categoryHandler).createCategory(any(CategoryRequest.class));
+        }).when(categoryHandler).createBrand(any(CategoryRequest.class));
 
         mvc.perform(post("/categories/")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -52,7 +52,7 @@ class CategoryControllerTest {
 
     @Test
     void shouldReturnBadRequestIfCategoryNameIsEmpty() throws Exception {
-        String expectedMessage = ExceptionMessage.EMPTY_NAME;
+        String expectedMessage = CategoryExceptionMessage.EMPTY_NAME;
 
         doAnswer(invocation -> {
             CategoryRequest request = invocation.getArgument(0);
@@ -60,7 +60,7 @@ class CategoryControllerTest {
                 throw new CategoryNotValidFieldException(expectedMessage);
             }
             return null;
-        }).when(categoryHandler).createCategory(any(CategoryRequest.class));
+        }).when(categoryHandler).createBrand(any(CategoryRequest.class));
 
         mvc.perform(post("/categories/")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -72,7 +72,7 @@ class CategoryControllerTest {
 
     @Test
     void shouldReturnBadRequestIfCategoryNameIsMissing() throws Exception {
-        String expectedMessage = ExceptionMessage.EMPTY_NAME;
+        String expectedMessage = CategoryExceptionMessage.EMPTY_NAME;
 
         doAnswer(invocation -> {
             CategoryRequest request = invocation.getArgument(0);
@@ -80,7 +80,7 @@ class CategoryControllerTest {
                 throw new CategoryNotValidFieldException(expectedMessage);
             }
             return null;
-        }).when(categoryHandler).createCategory(any(CategoryRequest.class));
+        }).when(categoryHandler).createBrand(any(CategoryRequest.class));
 
         mvc.perform(post("/categories/")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -93,7 +93,7 @@ class CategoryControllerTest {
 
     @Test
     void shouldReturnBadRequestIfCategoryDescriptionIsNull() throws Exception {
-        String expectedMessage = ExceptionMessage.EMPTY_DESCRIPTION;
+        String expectedMessage = CategoryExceptionMessage.EMPTY_DESCRIPTION;
 
         doAnswer(invocation -> {
             CategoryRequest request = invocation.getArgument(0);
@@ -101,7 +101,7 @@ class CategoryControllerTest {
                 throw new CategoryNotValidFieldException(expectedMessage);
             }
             return null;
-        }).when(categoryHandler).createCategory(any(CategoryRequest.class));
+        }).when(categoryHandler).createBrand(any(CategoryRequest.class));
 
         mvc.perform(post("/categories/")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -113,7 +113,7 @@ class CategoryControllerTest {
 
     @Test
     void shouldReturnBadRequestIfCategoryDescriptionIsEmpty() throws Exception {
-        String expectedMessage = ExceptionMessage.EMPTY_DESCRIPTION;
+        String expectedMessage = CategoryExceptionMessage.EMPTY_DESCRIPTION;
 
         doAnswer(invocation -> {
             CategoryRequest request = invocation.getArgument(0);
@@ -121,7 +121,7 @@ class CategoryControllerTest {
                 throw new CategoryNotValidFieldException(expectedMessage);
             }
             return null;
-        }).when(categoryHandler).createCategory(any(CategoryRequest.class));
+        }).when(categoryHandler).createBrand(any(CategoryRequest.class));
 
         mvc.perform(post("/categories/")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -133,7 +133,7 @@ class CategoryControllerTest {
 
     @Test
     void shouldReturnBadRequestIfCategoryDescriptionIsMissing() throws Exception {
-        String expectedMessage = ExceptionMessage.EMPTY_DESCRIPTION;
+        String expectedMessage = CategoryExceptionMessage.EMPTY_DESCRIPTION;
 
         doAnswer(invocation -> {
             CategoryRequest request = invocation.getArgument(0);
@@ -141,7 +141,7 @@ class CategoryControllerTest {
                 throw new CategoryNotValidFieldException(expectedMessage);
             }
             return null;
-        }).when(categoryHandler).createCategory(any(CategoryRequest.class));
+        }).when(categoryHandler).createBrand(any(CategoryRequest.class));
 
         mvc.perform(post("/categories/")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -159,14 +159,14 @@ class CategoryControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        verify(categoryHandler).createCategory(any(CategoryRequest.class));
+        verify(categoryHandler).createBrand(any(CategoryRequest.class));
     }
 
     @Test
     void shouldReturnConflictWhenCategoryNameAlreadyExists() throws Exception {
-        String expectedMessage = ExceptionMessage.ALREADY_EXIST_CATEGORY;
+        String expectedMessage = CategoryExceptionMessage.ALREADY_EXIST_CATEGORY;
 
-        doThrow(new CategoryAlreadyExistException(expectedMessage)).when(categoryHandler).createCategory(any(CategoryRequest.class));
+        doThrow(new CategoryAlreadyExistException(expectedMessage)).when(categoryHandler).createBrand(any(CategoryRequest.class));
 
         mvc.perform(post("/categories/")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -178,7 +178,7 @@ class CategoryControllerTest {
 
     @Test
     void shouldReturnBadRequestIfSortDirectionIsInvalid() throws Exception {
-        String expectedMessage = ExceptionMessage.INVALID_SORT_DIRECTION;
+        String expectedMessage = CategoryExceptionMessage.INVALID_SORT_DIRECTION;
 
         when(categoryHandler.getCategoriesByPage(0,10,"INVALID")).
                 thenThrow(new CategoryNotValidParameterException(expectedMessage));
@@ -194,7 +194,7 @@ class CategoryControllerTest {
 
     @Test
     void shouldReturnBadRequestIfPageIsNegative() throws Exception {
-        String expectedMessage = ExceptionMessage.NO_NEGATIVE_PAGE;
+        String expectedMessage = CategoryExceptionMessage.NO_NEGATIVE_PAGE;
 
         when(categoryHandler.getCategoriesByPage(-1,10,"ASC")).
                 thenThrow(new CategoryNotValidParameterException(expectedMessage));
@@ -211,7 +211,7 @@ class CategoryControllerTest {
 
     @Test
     void shouldReturnBadRequestIfSizeIsZeroOrNegative() throws Exception {
-        String expectedMessage = ExceptionMessage.GREATER_ZERO_SIZE;
+        String expectedMessage = CategoryExceptionMessage.GREATER_ZERO_SIZE;
 
         when(categoryHandler.getCategoriesByPage(0,0,"ASC")).
                 thenThrow(new CategoryNotValidParameterException(expectedMessage));

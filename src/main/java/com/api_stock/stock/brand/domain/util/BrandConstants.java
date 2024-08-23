@@ -1,8 +1,8 @@
 package com.api_stock.stock.brand.domain.util;
 
-public class Constants {
+public class BrandConstants {
 
-    private Constants() {
+    private BrandConstants() {
         throw new AssertionError();
     }
 
