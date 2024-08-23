@@ -4,23 +4,23 @@ import com.api_stock.stock.category.domain.api.ICategoryCreateServicePort;
 import com.api_stock.stock.category.domain.exception.ex.CategoryAlreadyExistException;
 import com.api_stock.stock.category.domain.exception.ex.CategoryNotValidFieldException;
 import com.api_stock.stock.category.domain.exception.CategoryExceptionMessage;
-import com.api_stock.stock.category.domain.model.Brand;
-import com.api_stock.stock.category.domain.spi.IBrandPersistencePort;
+import com.api_stock.stock.category.domain.model.Category;
+import com.api_stock.stock.category.domain.spi.ICategoryPersistencePort;
 import com.api_stock.stock.category.domain.util.CategoryConstants;
 
-public class BrandCreateUseCase implements ICategoryCreateServicePort {
+public class CategoryCreateUseCase implements ICategoryCreateServicePort {
 
-    private final IBrandPersistencePort categoryPersistencePort;
+    private final ICategoryPersistencePort categoryPersistencePort;
 
-    public BrandCreateUseCase(IBrandPersistencePort categoryPersistencePort) {
+    public CategoryCreateUseCase(ICategoryPersistencePort categoryPersistencePort) {
         this.categoryPersistencePort = categoryPersistencePort;
     }
 
     @Override
-    public void createCategory(Brand brand) {
+    public void createCategory(Category category) {
 
-        String categoryName = brand.getName();
-        String categoryDescription = brand.getDescription();
+        String categoryName = category.getName();
+        String categoryDescription = category.getDescription();
 
         if (categoryName == null || categoryName.trim().isEmpty())
             throw new CategoryNotValidFieldException(CategoryExceptionMessage.EMPTY_NAME);
@@ -37,6 +37,6 @@ public class BrandCreateUseCase implements ICategoryCreateServicePort {
         if (Boolean.TRUE.equals(categoryPersistencePort.isBradPresentByName(categoryName)))
             throw new CategoryAlreadyExistException(CategoryExceptionMessage.ALREADY_EXIST_CATEGORY);
 
-        categoryPersistencePort.createCategory(brand);
+        categoryPersistencePort.createCategory(category);
     }
 }

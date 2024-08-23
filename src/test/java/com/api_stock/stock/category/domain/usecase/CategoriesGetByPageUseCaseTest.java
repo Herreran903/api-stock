@@ -2,9 +2,9 @@ package com.api_stock.stock.category.domain.usecase;
 
 import com.api_stock.stock.category.domain.exception.CategoryExceptionMessage;
 import com.api_stock.stock.category.domain.exception.ex.CategoryNotValidParameterException;
-import com.api_stock.stock.category.domain.model.Brand;
+import com.api_stock.stock.category.domain.model.Category;
 import com.api_stock.stock.category.domain.model.CategoryPage;
-import com.api_stock.stock.category.domain.spi.IBrandPersistencePort;
+import com.api_stock.stock.category.domain.spi.ICategoryPersistencePort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
 class CategoriesGetByPageUseCaseTest {
 
     @Mock
-    private IBrandPersistencePort categoryPersistencePort;
+    private ICategoryPersistencePort categoryPersistencePort;
 
     @InjectMocks
     private CategoriesGetByPageUseCase categoriesGetByPageUseCase;
@@ -68,8 +68,8 @@ class CategoriesGetByPageUseCaseTest {
         int size = 10;
         String sortDirection = "ASC";
 
-        CategoryPage<Brand> expectedCategoryPage = new CategoryPage<>(
-                List.of(new Brand(1L, "name", "desc")),
+        CategoryPage<Category> expectedCategoryPage = new CategoryPage<>(
+                List.of(new Category(1L, "Electronics", "Devices and gadgets")),
                 page,
                 1,
                 true,
@@ -80,7 +80,7 @@ class CategoriesGetByPageUseCaseTest {
 
         when(categoryPersistencePort.getCategoriesByPage(page, size, sortDirection)).thenReturn(expectedCategoryPage);
 
-        CategoryPage<Brand> result = categoriesGetByPageUseCase.getCategoriesByPage(page, size, sortDirection);
+        CategoryPage<Category> result = categoriesGetByPageUseCase.getCategoriesByPage(page, size, sortDirection);
 
         assertEquals(expectedCategoryPage, result);
         verify(categoryPersistencePort, times(1)).getCategoriesByPage(page, size, sortDirection);

@@ -3,8 +3,8 @@ package com.api_stock.stock.category.domain.usecase;
 import com.api_stock.stock.category.domain.exception.CategoryExceptionMessage;
 import com.api_stock.stock.category.domain.exception.ex.CategoryAlreadyExistException;
 import com.api_stock.stock.category.domain.exception.ex.CategoryNotValidFieldException;
-import com.api_stock.stock.category.domain.model.Brand;
-import com.api_stock.stock.category.domain.spi.IBrandPersistencePort;
+import com.api_stock.stock.category.domain.model.Category;
+import com.api_stock.stock.category.domain.spi.ICategoryPersistencePort;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -14,13 +14,13 @@ import org.mockito.MockitoAnnotations;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class BrandCreateUseCaseTest {
+class CategoryCreateUseCaseTest {
 
     @Mock
-    private IBrandPersistencePort categoryPersistencePort;
+    private ICategoryPersistencePort categoryPersistencePort;
 
     @InjectMocks
-    private BrandCreateUseCase categoryCreateUseCase;
+    private CategoryCreateUseCase categoryCreateUseCase;
 
     @BeforeEach
     void setUp() {
@@ -29,14 +29,14 @@ class BrandCreateUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenNameExceedsMaxLength() {
-        Brand brand = new Brand(
+        Category category = new Category(
                 1L,
                 "123457891234578912345789123457891234578912345789123457891234578912345789123457891234578912345789",
                 "Description");
 
 
         CategoryNotValidFieldException exception = assertThrows(
-                CategoryNotValidFieldException.class, () -> categoryCreateUseCase.createCategory(brand)
+                CategoryNotValidFieldException.class, () -> categoryCreateUseCase.createCategory(category)
         );
 
         assertEquals(CategoryExceptionMessage.TOO_LONG_NAME, exception.getMessage());
@@ -44,13 +44,13 @@ class BrandCreateUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenDescriptionExceedsMaxLength() {
-        Brand brand = new Brand(
+        Category category = new Category(
                 1L,
                 "Name",
                 "123457891234578912345789123457891234578912345789123457891234578912345789123457891234578912345789");
 
         CategoryNotValidFieldException exception = assertThrows(
-                CategoryNotValidFieldException.class, () -> categoryCreateUseCase.createCategory(brand)
+                CategoryNotValidFieldException.class, () -> categoryCreateUseCase.createCategory(category)
         );
 
         assertEquals(CategoryExceptionMessage.TOO_LONG_DESCRIPTION, exception.getMessage());
@@ -58,10 +58,10 @@ class BrandCreateUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenNameIsNull() {
-        Brand brand = new Brand(1L, null, "Description");
+        Category category = new Category(1L, null, "Description");
 
         CategoryNotValidFieldException exception = assertThrows(
-                CategoryNotValidFieldException.class, () -> categoryCreateUseCase.createCategory(brand)
+                CategoryNotValidFieldException.class, () -> categoryCreateUseCase.createCategory(category)
         );
 
         assertEquals(CategoryExceptionMessage.EMPTY_NAME, exception.getMessage());
@@ -69,10 +69,10 @@ class BrandCreateUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenNameIsEmpty() {
-        Brand brand = new Brand(1L, "", "Description");
+        Category category = new Category(1L, "", "Description");
 
         CategoryNotValidFieldException exception = assertThrows(
-                CategoryNotValidFieldException.class, () -> categoryCreateUseCase.createCategory(brand)
+                CategoryNotValidFieldException.class, () -> categoryCreateUseCase.createCategory(category)
         );
 
         assertEquals(CategoryExceptionMessage.EMPTY_NAME, exception.getMessage());
@@ -80,10 +80,10 @@ class BrandCreateUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenDescriptionIsNull() {
-        Brand brand = new Brand(1L, "Name", null);
+        Category category = new Category(1L, "Name", null);
 
         CategoryNotValidFieldException exception = assertThrows(
-                CategoryNotValidFieldException.class, () -> categoryCreateUseCase.createCategory(brand)
+                CategoryNotValidFieldException.class, () -> categoryCreateUseCase.createCategory(category)
         );
 
         assertEquals(CategoryExceptionMessage.EMPTY_DESCRIPTION, exception.getMessage());
@@ -91,10 +91,10 @@ class BrandCreateUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenDescriptionIsEmpty() {
-        Brand brand = new Brand(1L, "Name", "");
+        Category category = new Category(1L, "Name", "");
 
         CategoryNotValidFieldException exception = assertThrows(
-                CategoryNotValidFieldException.class, () -> categoryCreateUseCase.createCategory(brand)
+                CategoryNotValidFieldException.class, () -> categoryCreateUseCase.createCategory(category)
         );
 
         assertEquals(CategoryExceptionMessage.EMPTY_DESCRIPTION, exception.getMessage());
@@ -102,12 +102,12 @@ class BrandCreateUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenCategoryAlreadyExists() {
-        Brand brand = new Brand(1L, "ExistingCategory", "Description");
+        Category category = new Category(1L, "ExistingCategory", "Description");
 
         when(categoryPersistencePort.isBradPresentByName("ExistingCategory")).thenReturn(true);
 
         CategoryAlreadyExistException exception = assertThrows(
-                CategoryAlreadyExistException.class, () -> categoryCreateUseCase.createCategory(brand)
+                CategoryAlreadyExistException.class, () -> categoryCreateUseCase.createCategory(category)
         );
 
         verify(categoryPersistencePort, times(1)).isBradPresentByName("ExistingCategory");
@@ -116,10 +116,10 @@ class BrandCreateUseCaseTest {
 
     @Test
     void shouldCreateCategorySuccessfully() {
-        Brand brand = new Brand(1L, "Name", "Description");
+        Category category = new Category(1L, "Name", "Description");
 
-        assertDoesNotThrow(() -> categoryCreateUseCase.createCategory(brand));
+        assertDoesNotThrow(() -> categoryCreateUseCase.createCategory(category));
 
-        verify(categoryPersistencePort).createCategory(brand);
+        verify(categoryPersistencePort).createCategory(category);
     }
 }

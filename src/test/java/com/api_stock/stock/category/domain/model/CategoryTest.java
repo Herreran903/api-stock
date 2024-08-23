@@ -8,11 +8,11 @@ class CategoryTest {
 
     @Test
     void shouldCreateCategorySuccessfully() {
-        Brand brand = new Brand(1L, "Name", "Description");
+        Category category = new Category(1L, "Name", "Description");
 
-        assertNotNull(brand);
-        assertEquals(1L, brand.getId());
-        assertEquals("Name", brand.getName());
-        assertEquals("Description", brand.getDescription());
+        assertNotNull(category);
+        assertEquals(1L, category.getId());
+        assertEquals("Name", category.getName());
+        assertEquals("Description", category.getDescription());
     }
 }

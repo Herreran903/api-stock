@@ -1,8 +1,8 @@
 package com.api_stock.stock.category.infra.out;
 
-import com.api_stock.stock.category.domain.model.Brand;
+import com.api_stock.stock.category.domain.model.Category;
 import com.api_stock.stock.category.domain.model.CategoryPage;
-import com.api_stock.stock.category.domain.spi.IBrandPersistencePort;
+import com.api_stock.stock.category.domain.spi.ICategoryPersistencePort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -10,7 +10,7 @@ import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
-public class CategoryAdapter implements IBrandPersistencePort {
+public class CategoryAdapter implements ICategoryPersistencePort {
 
     ICategoryRepository repository;
     ICategoryMapper mapper;
@@ -21,8 +21,8 @@ public class CategoryAdapter implements IBrandPersistencePort {
     }
 
     @Override
-    public void createCategory(Brand brand) {
-        repository.save(mapper.toEntity(brand));
+    public void createCategory(Category category) {
+        repository.save(mapper.toEntity(category));
     }
 
     @Override
@@ -31,13 +31,13 @@ public class CategoryAdapter implements IBrandPersistencePort {
     }
 
     @Override
-    public CategoryPage<Brand> getCategoriesByPage(int page, int size, String orderDirection) {
-        Sort.Direction direction = Sort.Direction.fromString(orderDirection);
+    public CategoryPage<Category> getCategoriesByPage(int page, int size, String sortDirection) {
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable sortedPageable = PageRequest.of(page, size, Sort.by(direction, "name"));
 
         Page<CategoryEntity> categoryEntityPage = repository.findAll(sortedPageable);
 
-        List<Brand> categories = mapper.toCategoriesList(categoryEntityPage.getContent());
+        List<Category> categories = mapper.toCategoriesList(categoryEntityPage.getContent());
 
         return new CategoryPage<>(
                 categories,
