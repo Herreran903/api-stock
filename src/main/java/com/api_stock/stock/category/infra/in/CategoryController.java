@@ -40,7 +40,7 @@ public class CategoryController {
     )
     @PostMapping("/")
     public ResponseEntity<Void> createCategory(@Valid @RequestBody CategoryRequest categoryRequest) {
-        categoryHandler.createCategory(categoryRequest);
+        categoryHandler.createBrand(categoryRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -56,9 +56,13 @@ public class CategoryController {
     )
     @GetMapping("/")
     public ResponseEntity<CategoryPage<CategoryResponse>> getCategoriesByPage(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "ASC") String sortDirection) {
+            @RequestParam(defaultValue = "0")
+            int page,
+            @RequestParam(defaultValue = "10")
+            int size,
+            @Valid
+            @RequestParam(defaultValue = "ASC")
+            String sortDirection) {
         CategoryPage<CategoryResponse> categories = categoryHandler.getCategoriesByPage(page, size, sortDirection);
 
         return ResponseEntity.ok(categories);

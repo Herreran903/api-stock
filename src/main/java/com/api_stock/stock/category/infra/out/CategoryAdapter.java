@@ -1,10 +1,8 @@
 package com.api_stock.stock.category.infra.out;
 
-import com.api_stock.stock.category.domain.model.Category;
+import com.api_stock.stock.category.domain.model.Brand;
 import com.api_stock.stock.category.domain.model.CategoryPage;
-import com.api_stock.stock.category.domain.spi.ICategoryPersistencePort;
-import com.api_stock.stock.category.infra.exception.InfraExceptionMessage;
-import com.api_stock.stock.category.infra.exception.ex.CategoryAlreadyExistException;
+import com.api_stock.stock.category.domain.spi.IBrandPersistencePort;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +10,7 @@ import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
-public class CategoryAdapter implements ICategoryPersistencePort {
+public class CategoryAdapter implements IBrandPersistencePort {
 
     ICategoryRepository repository;
     ICategoryMapper mapper;
@@ -23,22 +21,23 @@ public class CategoryAdapter implements ICategoryPersistencePort {
     }
 
     @Override
-    public void createCategory(Category category) {
-        if (repository.findByName(category.getName()).isPresent()) {
-            throw new CategoryAlreadyExistException(InfraExceptionMessage.CATEGORY_ALREADY_EXISTS.getMessage());
-        }
-
-        repository.save(mapper.toEntity(category));
+    public void createCategory(Brand brand) {
+        repository.save(mapper.toEntity(brand));
     }
 
     @Override
-    public CategoryPage<Category> getCategoriesByPage(int page, int size, String orderDirection) {
+    public Boolean isBradPresentByName(String name){
+        return repository.findByName(name).isPresent();
+    }
+
+    @Override
+    public CategoryPage<Brand> getCategoriesByPage(int page, int size, String orderDirection) {
         Sort.Direction direction = Sort.Direction.fromString(orderDirection);
         Pageable sortedPageable = PageRequest.of(page, size, Sort.by(direction, "name"));
 
         Page<CategoryEntity> categoryEntityPage = repository.findAll(sortedPageable);
 
-        List<Category> categories = mapper.toCategoriesList(categoryEntityPage.getContent());
+        List<Brand> categories = mapper.toCategoriesList(categoryEntityPage.getContent());
 
         return new CategoryPage<>(
                 categories,
@@ -50,4 +49,6 @@ public class CategoryAdapter implements ICategoryPersistencePort {
                 categoryEntityPage.hasPrevious()
         );
     }
+
+
 }

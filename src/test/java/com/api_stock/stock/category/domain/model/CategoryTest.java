@@ -6,12 +6,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CategoryTest {
 
-    @Test void shouldCreateCategorySuccessfully() {
-        Category category = new Category(1L, "Name", "Description");
+    @Test
+    void shouldCreateCategorySuccessfully() {
+        Brand brand = new Brand(1L, "Name", "Description");
 
-        assertNotNull(category);
-        assertEquals(1L, category.getId());
-        assertEquals("Name", category.getName());
-        assertEquals("Description", category.getDescription());
+        assertNotNull(brand);
+        assertEquals(1L, brand.getId());
+        assertEquals("Name", brand.getName());
+        assertEquals("Description", brand.getDescription());
     }
 }

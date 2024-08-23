@@ -6,6 +6,6 @@ import com.api_stock.stock.category.domain.model.CategoryPage;
 
 public interface ICategoryHandler {
 
-    void createCategory(CategoryRequest categoryRequest);
+    void createBrand(CategoryRequest categoryRequest);
     CategoryPage<CategoryResponse> getCategoriesByPage(int page, int size, String sortDirection);
 }
