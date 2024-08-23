@@ -1,9 +1,9 @@
 package com.api_stock.stock.category.domain.usecase;
 
 import com.api_stock.stock.category.domain.api.ICategoryCreateServicePort;
-import com.api_stock.stock.category.domain.exception.DomainExceptionMessage;
-import com.api_stock.stock.category.domain.exception.ex.EmptyFieldException;
-import com.api_stock.stock.category.domain.exception.ex.MaxLengthExceededException;
+import com.api_stock.stock.category.domain.exception.ex.CategoryAlreadyExistException;
+import com.api_stock.stock.category.domain.exception.ex.CategoryNotValidFieldException;
+import com.api_stock.stock.category.domain.exception.ExceptionMessage;
 import com.api_stock.stock.category.domain.model.Category;
 import com.api_stock.stock.category.domain.spi.ICategoryPersistencePort;
 import com.api_stock.stock.category.domain.util.Constants;
@@ -23,26 +23,19 @@ public class CategoryCreateUseCase implements ICategoryCreateServicePort {
         String categoryDescription = category.getDescription();
 
         if (categoryName == null || categoryName.trim().isEmpty())
-            throw new EmptyFieldException(DomainExceptionMessage.FIELD_EMPTY.getMessage(
-                            Constants.Field.NAME.toString(), 0
-            ));
+            throw new CategoryNotValidFieldException(ExceptionMessage.EMPTY_NAME);
 
         if (categoryDescription == null || categoryDescription.trim().isEmpty())
-            throw new EmptyFieldException(DomainExceptionMessage.FIELD_EMPTY.getMessage(
-                            Constants.Field.DESCRIPTION.toString(), 0
-            ));
+            throw new CategoryNotValidFieldException(ExceptionMessage.EMPTY_DESCRIPTION);
 
-        if (categoryName.length() > Constants.MAX_NAME_LENGTH) {
-            throw new MaxLengthExceededException(DomainExceptionMessage.FIELD_TOO_LONG.getMessage(
-                            Constants.Field.NAME.toString(), Constants.MAX_NAME_LENGTH
-            ));
-        }
+        if (categoryName.length() > Constants.MAX_NAME_LENGTH)
+            throw new CategoryNotValidFieldException(ExceptionMessage.TOO_LONG_NAME);
 
-        if (categoryDescription.length() > Constants.MAX_DESCRIPTION_LENGTH) {
-            throw new MaxLengthExceededException(DomainExceptionMessage.FIELD_TOO_LONG.getMessage(
-                    Constants.Field.DESCRIPTION.toString(), Constants.MAX_DESCRIPTION_LENGTH
-            ));
-        }
+        if (categoryDescription.length() > Constants.MAX_DESCRIPTION_LENGTH)
+            throw new CategoryNotValidFieldException(ExceptionMessage.TOO_LONG_DESCRIPTION);
+
+        if (Boolean.TRUE.equals(categoryPersistencePort.isCategoryPresentByName(categoryName)))
+            throw new CategoryAlreadyExistException(ExceptionMessage.ALREADY_EXIST_CATEGORY);
 
         categoryPersistencePort.createCategory(category);
     }

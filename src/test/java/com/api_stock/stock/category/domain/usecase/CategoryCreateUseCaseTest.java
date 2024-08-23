@@ -1,7 +1,8 @@
 package com.api_stock.stock.category.domain.usecase;
 
-import com.api_stock.stock.category.domain.exception.ex.EmptyFieldException;
-import com.api_stock.stock.category.domain.exception.ex.MaxLengthExceededException;
+import com.api_stock.stock.category.domain.exception.ExceptionMessage;
+import com.api_stock.stock.category.domain.exception.ex.CategoryAlreadyExistException;
+import com.api_stock.stock.category.domain.exception.ex.CategoryNotValidFieldException;
 import com.api_stock.stock.category.domain.model.Category;
 import com.api_stock.stock.category.domain.spi.ICategoryPersistencePort;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,9 +11,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class CategoryCreateUseCaseTest {
 
@@ -35,9 +35,11 @@ class CategoryCreateUseCaseTest {
                 "Description");
 
 
-        assertThrows(
-                MaxLengthExceededException.class, () -> categoryCreateUseCase.createCategory(category)
+        CategoryNotValidFieldException exception = assertThrows(
+                CategoryNotValidFieldException.class, () -> categoryCreateUseCase.createCategory(category)
         );
+
+        assertEquals(ExceptionMessage.TOO_LONG_NAME, exception.getMessage());
     }
 
     @Test
@@ -47,43 +49,69 @@ class CategoryCreateUseCaseTest {
                 "Name",
                 "123457891234578912345789123457891234578912345789123457891234578912345789123457891234578912345789");
 
-        assertThrows(
-                MaxLengthExceededException.class, () -> categoryCreateUseCase.createCategory(category)
+        CategoryNotValidFieldException exception = assertThrows(
+                CategoryNotValidFieldException.class, () -> categoryCreateUseCase.createCategory(category)
         );
+
+        assertEquals(ExceptionMessage.TOO_LONG_DESCRIPTION, exception.getMessage());
     }
 
     @Test
     void shouldThrowExceptionWhenNameIsNull() {
         Category category = new Category(1L, null, "Description");
 
-        assertThrows(
-                EmptyFieldException.class, () -> categoryCreateUseCase.createCategory(category)
+        CategoryNotValidFieldException exception = assertThrows(
+                CategoryNotValidFieldException.class, () -> categoryCreateUseCase.createCategory(category)
         );
+
+        assertEquals(ExceptionMessage.EMPTY_NAME, exception.getMessage());
     }
 
     @Test
     void shouldThrowExceptionWhenNameIsEmpty() {
         Category category = new Category(1L, "", "Description");
 
-        assertThrows(
-                EmptyFieldException.class, () -> categoryCreateUseCase.createCategory(category)
+        CategoryNotValidFieldException exception = assertThrows(
+                CategoryNotValidFieldException.class, () -> categoryCreateUseCase.createCategory(category)
         );
+
+        assertEquals(ExceptionMessage.EMPTY_NAME, exception.getMessage());
     }
 
-    @Test void shouldThrowExceptionWhenDescriptionIsNull() {
+    @Test
+    void shouldThrowExceptionWhenDescriptionIsNull() {
         Category category = new Category(1L, "Name", null);
 
-        assertThrows(
-                EmptyFieldException.class, () -> categoryCreateUseCase.createCategory(category)
+        CategoryNotValidFieldException exception = assertThrows(
+                CategoryNotValidFieldException.class, () -> categoryCreateUseCase.createCategory(category)
         );
+
+        assertEquals(ExceptionMessage.EMPTY_DESCRIPTION, exception.getMessage());
     }
 
-    @Test void shouldThrowExceptionWhenDescriptionIsEmpty() {
+    @Test
+    void shouldThrowExceptionWhenDescriptionIsEmpty() {
         Category category = new Category(1L, "Name", "");
 
-        assertThrows(
-                EmptyFieldException.class, () -> categoryCreateUseCase.createCategory(category)
+        CategoryNotValidFieldException exception = assertThrows(
+                CategoryNotValidFieldException.class, () -> categoryCreateUseCase.createCategory(category)
         );
+
+        assertEquals(ExceptionMessage.EMPTY_DESCRIPTION, exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCategoryAlreadyExists() {
+        Category category = new Category(1L, "ExistingCategory", "Description");
+
+        when(categoryPersistencePort.isCategoryPresentByName("ExistingCategory")).thenReturn(true);
+
+        CategoryAlreadyExistException exception = assertThrows(
+                CategoryAlreadyExistException.class, () -> categoryCreateUseCase.createCategory(category)
+        );
+
+        verify(categoryPersistencePort, times(1)).isCategoryPresentByName("ExistingCategory");
+        assertEquals(ExceptionMessage.ALREADY_EXIST_CATEGORY, exception.getMessage());
     }
 
     @Test

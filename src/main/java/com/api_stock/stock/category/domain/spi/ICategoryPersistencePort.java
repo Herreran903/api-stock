@@ -7,4 +7,5 @@ public interface ICategoryPersistencePort {
 
     void createCategory(Category category);
     CategoryPage<Category> getCategoriesByPage(int page, int size, String sortDirection);
+    Boolean isCategoryPresentByName(String categoryName);
 }

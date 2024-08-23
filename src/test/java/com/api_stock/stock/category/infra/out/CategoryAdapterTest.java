@@ -2,7 +2,6 @@ package com.api_stock.stock.category.infra.out;
 
 import com.api_stock.stock.category.domain.model.Category;
 import com.api_stock.stock.category.domain.model.CategoryPage;
-import com.api_stock.stock.category.infra.exception.ex.CategoryAlreadyExistException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -32,16 +31,6 @@ class CategoryAdapterTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-    }
-
-    @Test
-    void shouldThrowExceptionWhenCategoryAlreadyExists() {
-        Category category = new Category(1L, "Electronics", "Devices and gadgets");
-        CategoryEntity categoryEntity = new CategoryEntity();
-
-        when(repository.findByName("Electronics")).thenReturn(Optional.of(categoryEntity));
-
-        assertThrows(CategoryAlreadyExistException.class, () -> categoryAdapter.createCategory(category));
     }
 
     @Test

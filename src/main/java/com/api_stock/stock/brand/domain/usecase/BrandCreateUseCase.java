@@ -15,5 +15,6 @@ public class BrandCreateUseCase implements IBrandCreateServicePort {
     @Override
     public void createBrand(Brand brand) {
 
+        brandPersistencePort.createBrand(brand);
     }
 }

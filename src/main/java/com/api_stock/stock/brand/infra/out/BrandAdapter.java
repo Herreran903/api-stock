@@ -15,6 +15,6 @@ public class BrandAdapter implements IBrandPersistencePort {
 
     @Override
     public void createBrand(Brand brand) {
-
+        repository.save(mapper.toEntity(brand));
     }
 }

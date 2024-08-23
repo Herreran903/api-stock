@@ -2,12 +2,10 @@ package com.api_stock.stock.category.app.handler;
 
 import com.api_stock.stock.category.app.dto.CategoryRequest;
 import com.api_stock.stock.category.app.dto.CategoryResponse;
-import com.api_stock.stock.category.app.exception.AppExceptionMessage;
-import com.api_stock.stock.category.app.exception.ex.InvalidParameterException;
 import com.api_stock.stock.category.app.mapper.ICategoryRequestMapper;
 import com.api_stock.stock.category.app.mapper.ICategoryResponseMapper;
 import com.api_stock.stock.category.domain.api.ICategoryCreateServicePort;
-import com.api_stock.stock.category.domain.api.IGetCategoriesByPageServicePort;
+import com.api_stock.stock.category.domain.api.ICategoriesGetByPageServicePort;
 import com.api_stock.stock.category.domain.model.Category;
 import com.api_stock.stock.category.domain.model.CategoryPage;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +23,7 @@ class CategoryHandlerTest {
     private ICategoryCreateServicePort categoryCreateService;
 
     @Mock
-    private IGetCategoriesByPageServicePort getCategoriesByPageService;
+    private ICategoriesGetByPageServicePort getCategoriesByPageService;
 
     @Mock
     private ICategoryRequestMapper categoryRequestMapper;
@@ -51,45 +49,6 @@ class CategoryHandlerTest {
         categoryHandler.createCategory(categoryRequest);
 
         verify(categoryCreateService).createCategory(category);
-    }
-
-    @Test
-    void shouldThrowInvalidParameterExceptionWhenSortDirectionIsInvalid() {
-        String invalidSortDirection = "INVALID";
-
-        InvalidParameterException exception = assertThrows(
-                InvalidParameterException.class,
-                () -> categoryHandler.getCategoriesByPage(0, 10, invalidSortDirection)
-        );
-
-        assertEquals(AppExceptionMessage.INVALID_SORT_DIRECTION.getMessage(), exception.getMessage());
-        verifyNoInteractions(getCategoriesByPageService);
-    }
-
-    @Test
-    void shouldThrowInvalidParameterExceptionWhenPageIsNegative() {
-        int negativePage = -1;
-
-        InvalidParameterException exception = assertThrows(
-                InvalidParameterException.class,
-                () -> categoryHandler.getCategoriesByPage(negativePage, 10, "ASC")
-        );
-
-        assertEquals(AppExceptionMessage.NO_NEGATIVE_PAGE.getMessage(), exception.getMessage());
-        verifyNoInteractions(getCategoriesByPageService);
-    }
-
-    @Test
-    void shouldThrowInvalidParameterExceptionWhenSizeIsLessThanOrEqualToZero() {
-        int invalidSize = 0;
-
-        InvalidParameterException exception = assertThrows(
-                InvalidParameterException.class,
-                () -> categoryHandler.getCategoriesByPage(0, invalidSize, "ASC")
-        );
-
-        assertEquals(AppExceptionMessage.SIZE_GREATER_ZERO.getMessage(), exception.getMessage());
-        verifyNoInteractions(getCategoriesByPageService);
     }
 
     @Test

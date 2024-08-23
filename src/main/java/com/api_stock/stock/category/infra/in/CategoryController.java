@@ -56,9 +56,13 @@ public class CategoryController {
     )
     @GetMapping("/")
     public ResponseEntity<CategoryPage<CategoryResponse>> getCategoriesByPage(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "ASC") String sortDirection) {
+            @RequestParam(defaultValue = "0")
+            int page,
+            @RequestParam(defaultValue = "10")
+            int size,
+            @Valid
+            @RequestParam(defaultValue = "ASC")
+            String sortDirection) {
         CategoryPage<CategoryResponse> categories = categoryHandler.getCategoriesByPage(page, size, sortDirection);
 
         return ResponseEntity.ok(categories);

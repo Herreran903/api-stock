@@ -1,13 +1,11 @@
 package com.api_stock.stock.category.infra.in;
 
 import com.api_stock.stock.category.app.dto.CategoryRequest;
-import com.api_stock.stock.category.app.exception.AppExceptionMessage;
-import com.api_stock.stock.category.app.exception.ex.InvalidParameterException;
 import com.api_stock.stock.category.app.handler.ICategoryHandler;
-import com.api_stock.stock.category.domain.exception.DomainExceptionMessage;
-import com.api_stock.stock.category.domain.exception.ex.EmptyFieldException;
-import com.api_stock.stock.category.infra.exception.InfraExceptionMessage;
-import com.api_stock.stock.category.infra.exception.ex.CategoryAlreadyExistException;
+import com.api_stock.stock.category.domain.exception.ExceptionMessage;
+import com.api_stock.stock.category.domain.exception.ex.CategoryAlreadyExistException;
+import com.api_stock.stock.category.domain.exception.ex.CategoryNotValidFieldException;
+import com.api_stock.stock.category.domain.exception.ex.CategoryNotValidParameterException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -34,12 +32,12 @@ class CategoryControllerTest {
 
     @Test
     void shouldReturnBadRequestIfCategoryNameIsNull() throws Exception {
-        String expectedMessage = DomainExceptionMessage.FIELD_EMPTY.getMessage("name", 0);
+        String expectedMessage = ExceptionMessage.EMPTY_NAME;
 
         doAnswer(invocation -> {
             CategoryRequest request = invocation.getArgument(0);
             if (request.getName() == null) {
-                throw new EmptyFieldException(expectedMessage);
+                throw new CategoryNotValidFieldException(expectedMessage);
             }
             return null;
         }).when(categoryHandler).createCategory(any(CategoryRequest.class));
@@ -54,12 +52,12 @@ class CategoryControllerTest {
 
     @Test
     void shouldReturnBadRequestIfCategoryNameIsEmpty() throws Exception {
-        String expectedMessage = DomainExceptionMessage.FIELD_EMPTY.getMessage("name", 0);
+        String expectedMessage = ExceptionMessage.EMPTY_NAME;
 
         doAnswer(invocation -> {
             CategoryRequest request = invocation.getArgument(0);
             if (request.getName().isEmpty()) {
-                throw new EmptyFieldException(expectedMessage);
+                throw new CategoryNotValidFieldException(expectedMessage);
             }
             return null;
         }).when(categoryHandler).createCategory(any(CategoryRequest.class));
@@ -74,12 +72,12 @@ class CategoryControllerTest {
 
     @Test
     void shouldReturnBadRequestIfCategoryNameIsMissing() throws Exception {
-        String expectedMessage = DomainExceptionMessage.FIELD_EMPTY.getMessage("name", 0);
+        String expectedMessage = ExceptionMessage.EMPTY_NAME;
 
         doAnswer(invocation -> {
             CategoryRequest request = invocation.getArgument(0);
             if (request.getName() == null || request.getName().isEmpty()) {
-                throw new EmptyFieldException(expectedMessage);
+                throw new CategoryNotValidFieldException(expectedMessage);
             }
             return null;
         }).when(categoryHandler).createCategory(any(CategoryRequest.class));
@@ -95,12 +93,12 @@ class CategoryControllerTest {
 
     @Test
     void shouldReturnBadRequestIfCategoryDescriptionIsNull() throws Exception {
-        String expectedMessage = DomainExceptionMessage.FIELD_EMPTY.getMessage("description", 0);
+        String expectedMessage = ExceptionMessage.EMPTY_DESCRIPTION;
 
         doAnswer(invocation -> {
             CategoryRequest request = invocation.getArgument(0);
             if (request.getDescription() == null) {
-                throw new EmptyFieldException(expectedMessage);
+                throw new CategoryNotValidFieldException(expectedMessage);
             }
             return null;
         }).when(categoryHandler).createCategory(any(CategoryRequest.class));
@@ -115,12 +113,12 @@ class CategoryControllerTest {
 
     @Test
     void shouldReturnBadRequestIfCategoryDescriptionIsEmpty() throws Exception {
-        String expectedMessage = DomainExceptionMessage.FIELD_EMPTY.getMessage("description", 0);
+        String expectedMessage = ExceptionMessage.EMPTY_DESCRIPTION;
 
         doAnswer(invocation -> {
             CategoryRequest request = invocation.getArgument(0);
             if (request.getDescription().isEmpty()) {
-                throw new EmptyFieldException(expectedMessage);
+                throw new CategoryNotValidFieldException(expectedMessage);
             }
             return null;
         }).when(categoryHandler).createCategory(any(CategoryRequest.class));
@@ -135,12 +133,12 @@ class CategoryControllerTest {
 
     @Test
     void shouldReturnBadRequestIfCategoryDescriptionIsMissing() throws Exception {
-        String expectedMessage = DomainExceptionMessage.FIELD_EMPTY.getMessage("description", 0);
+        String expectedMessage = ExceptionMessage.EMPTY_DESCRIPTION;
 
         doAnswer(invocation -> {
             CategoryRequest request = invocation.getArgument(0);
             if (request.getDescription() == null || request.getDescription().isEmpty()) {
-                throw new EmptyFieldException(expectedMessage);
+                throw new CategoryNotValidFieldException(expectedMessage);
             }
             return null;
         }).when(categoryHandler).createCategory(any(CategoryRequest.class));
@@ -166,7 +164,7 @@ class CategoryControllerTest {
 
     @Test
     void shouldReturnConflictWhenCategoryNameAlreadyExists() throws Exception {
-        String expectedMessage = InfraExceptionMessage.CATEGORY_ALREADY_EXISTS.getMessage();
+        String expectedMessage = ExceptionMessage.ALREADY_EXIST_CATEGORY;
 
         doThrow(new CategoryAlreadyExistException(expectedMessage)).when(categoryHandler).createCategory(any(CategoryRequest.class));
 
@@ -180,10 +178,10 @@ class CategoryControllerTest {
 
     @Test
     void shouldReturnBadRequestIfSortDirectionIsInvalid() throws Exception {
-        String expectedMessage = AppExceptionMessage.INVALID_SORT_DIRECTION.getMessage();
+        String expectedMessage = ExceptionMessage.INVALID_SORT_DIRECTION;
 
         when(categoryHandler.getCategoriesByPage(0,10,"INVALID")).
-                thenThrow(new InvalidParameterException(expectedMessage));
+                thenThrow(new CategoryNotValidParameterException(expectedMessage));
 
         mvc.perform(get("/categories/")
                         .param("page", "0")
@@ -196,10 +194,10 @@ class CategoryControllerTest {
 
     @Test
     void shouldReturnBadRequestIfPageIsNegative() throws Exception {
-        String expectedMessage = AppExceptionMessage.NO_NEGATIVE_PAGE.getMessage();
+        String expectedMessage = ExceptionMessage.NO_NEGATIVE_PAGE;
 
         when(categoryHandler.getCategoriesByPage(-1,10,"ASC")).
-                thenThrow(new InvalidParameterException(expectedMessage));
+                thenThrow(new CategoryNotValidParameterException(expectedMessage));
 
         mvc.perform(get("/categories/")
                         .param("page", "-1")
@@ -208,14 +206,15 @@ class CategoryControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(expectedMessage));
+
     }
 
     @Test
     void shouldReturnBadRequestIfSizeIsZeroOrNegative() throws Exception {
-        String expectedMessage = AppExceptionMessage.SIZE_GREATER_ZERO.getMessage();
+        String expectedMessage = ExceptionMessage.GREATER_ZERO_SIZE;
 
         when(categoryHandler.getCategoriesByPage(0,0,"ASC")).
-                thenThrow(new InvalidParameterException(expectedMessage));
+                thenThrow(new CategoryNotValidParameterException(expectedMessage));
 
         mvc.perform(get("/categories/")
                         .param("page", "0")
@@ -235,6 +234,6 @@ class CategoryControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        verify(categoryHandler).getCategoriesByPage(0, 10, "ASC");
+        verify(categoryHandler, times(1)).getCategoriesByPage(0, 10, "ASC");
     }
 }
