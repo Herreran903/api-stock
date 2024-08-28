@@ -1,12 +1,8 @@
 package com.api_stock.stock.infra.category.config;
 
-import com.api_stock.stock.domain.category.api.ICategoriesGetByIdsServicePort;
-import com.api_stock.stock.domain.category.api.ICategoryCreateServicePort;
-import com.api_stock.stock.domain.category.api.ICategoriesGetByPageServicePort;
+import com.api_stock.stock.domain.category.api.ICategoryServicePort;
 import com.api_stock.stock.domain.category.spi.ICategoryPersistencePort;
-import com.api_stock.stock.domain.category.usecase.CategoriesGetByIdsUseCase;
-import com.api_stock.stock.domain.category.usecase.CategoryCreateUseCase;
-import com.api_stock.stock.domain.category.usecase.CategoriesGetByPageUseCase;
+import com.api_stock.stock.domain.category.usecase.CategoryUseCase;
 import com.api_stock.stock.infra.category.out.CategoryAdapter;
 import com.api_stock.stock.infra.category.out.ICategoryMapper;
 import com.api_stock.stock.infra.category.out.ICategoryRepository;
@@ -27,17 +23,7 @@ public class BeanCategoryConfig {
     }
 
     @Bean
-    public ICategoryCreateServicePort categoryCreateService() {
-        return new CategoryCreateUseCase(categoryPersistence());
-    }
-
-    @Bean
-    public ICategoriesGetByPageServicePort getCategoriesByPageService() {
-        return new CategoriesGetByPageUseCase(categoryPersistence());
-    }
-
-    @Bean
-    public ICategoriesGetByIdsServicePort getCategoriesGetByPageService() {
-        return new CategoriesGetByIdsUseCase(categoryPersistence());
+    public ICategoryServicePort categoryCreateService() {
+        return new CategoryUseCase(categoryPersistence());
     }
 }
