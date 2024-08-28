@@ -4,8 +4,7 @@ import com.api_stock.stock.app.category.dto.CategoryRequest;
 import com.api_stock.stock.app.category.dto.CategoryResponse;
 import com.api_stock.stock.app.category.mapper.ICategoryRequestMapper;
 import com.api_stock.stock.app.category.mapper.ICategoryResponseMapper;
-import com.api_stock.stock.domain.category.api.ICategoryCreateServicePort;
-import com.api_stock.stock.domain.category.api.ICategoriesGetByPageServicePort;
+import com.api_stock.stock.domain.category.api.ICategoryServicePort;
 import com.api_stock.stock.domain.category.model.Category;
 import com.api_stock.stock.domain.page.PageData;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,10 +19,7 @@ import static org.mockito.Mockito.*;
 class CategoryHandlerTest {
 
     @Mock
-    private ICategoryCreateServicePort categoryCreateService;
-
-    @Mock
-    private ICategoriesGetByPageServicePort getCategoriesByPageService;
+    private ICategoryServicePort categoryServicePort;
 
     @Mock
     private ICategoryRequestMapper categoryRequestMapper;
@@ -48,7 +44,7 @@ class CategoryHandlerTest {
 
         categoryHandler.createBrand(categoryRequest);
 
-        verify(categoryCreateService, times(1)).createCategory(category);
+        verify(categoryServicePort, times(1)).createCategory(category);
     }
 
     @Test
@@ -60,7 +56,7 @@ class CategoryHandlerTest {
         PageData<Category> mockCategoryPage = mock(PageData.class);
         PageData<CategoryResponse> mockResponsePage = mock(PageData.class);
 
-        when(getCategoriesByPageService.getCategoriesByPage(page, size, sortDirection)).thenReturn(mockCategoryPage);
+        when(categoryServicePort.getCategoriesByPage(page, size, sortDirection)).thenReturn(mockCategoryPage);
         when(categoryResponseMapper.toPageResponse(mockCategoryPage)).thenReturn(mockResponsePage);
 
         PageData<CategoryResponse> result = categoryHandler.getCategoriesByPage(page, size, sortDirection);
@@ -68,7 +64,7 @@ class CategoryHandlerTest {
         assertNotNull(result);
         assertEquals(mockResponsePage, result);
 
-        verify(getCategoriesByPageService).getCategoriesByPage(page, size, sortDirection);
+        verify(categoryServicePort).getCategoriesByPage(page, size, sortDirection);
         verify(categoryResponseMapper).toPageResponse(mockCategoryPage);
     }
 }

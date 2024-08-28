@@ -21,13 +21,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-class ProductCreateUseCaseTest {
+class ProductUseCaseTest {
 
     @Mock
     private IProductPersistencePort productPersistencePort;
 
     @InjectMocks
-    private ProductCreateUseCase productCreateUseCase;
+    private ProductUseCase productUseCase;
 
     @BeforeEach
     void setUp() {
@@ -42,7 +42,7 @@ class ProductCreateUseCaseTest {
         Brand brand = new Brand(1L, "Brand1", "Description1");
         Product product = new Product(1L, "Product1", "", BigDecimal.TEN, 5, brand, categories);
         ProductNotValidFieldException productNotValidFieldException = assertThrows(
-                ProductNotValidFieldException.class, () -> productCreateUseCase.createProduct(product)
+                ProductNotValidFieldException.class, () -> productUseCase.createProduct(product)
         );
 
         assertEquals(ProductExceptionMessage.UNIQUE_CATEGORIES_IDS, productNotValidFieldException.getMessage());
@@ -55,7 +55,7 @@ class ProductCreateUseCaseTest {
         Product product = new Product(1L, "Product1", "", BigDecimal.TEN, 5, brand, categories);
 
         ProductNotValidFieldException productNotValidFieldException = assertThrows(
-                ProductNotValidFieldException.class, () -> productCreateUseCase.createProduct(product)
+                ProductNotValidFieldException.class, () -> productUseCase.createProduct(product)
         );
         assertEquals(ProductExceptionMessage.SIZE_CATEGORIES_ID, productNotValidFieldException.getMessage());
     }
@@ -66,7 +66,7 @@ class ProductCreateUseCaseTest {
         Product product = new Product(1L, "Product1", "", BigDecimal.TEN, 5, brand, null);
 
         ProductNotValidFieldException productNotValidFieldException = assertThrows(
-                ProductNotValidFieldException.class, () -> productCreateUseCase.createProduct(product)
+                ProductNotValidFieldException.class, () -> productUseCase.createProduct(product)
         );
         assertEquals(ProductExceptionMessage.EMPTY_CATEGORIES_IDS, productNotValidFieldException.getMessage());
     }
@@ -77,7 +77,7 @@ class ProductCreateUseCaseTest {
         Product product = new Product(1L, "Product1", "", BigDecimal.TEN, 5, null, categories);
 
         ProductNotValidFieldException productNotValidFieldException = assertThrows(
-                ProductNotValidFieldException.class, () -> productCreateUseCase.createProduct(product)
+                ProductNotValidFieldException.class, () -> productUseCase.createProduct(product)
         );
         assertEquals(ProductExceptionMessage.EMPTY_BRAND_ID, productNotValidFieldException.getMessage());
     }
@@ -92,7 +92,7 @@ class ProductCreateUseCaseTest {
         Product product = new Product(1L, testName, "", BigDecimal.TEN, 5, brand, categories);
 
         ProductNotValidFieldException productNotValidFieldException = assertThrows(
-                ProductNotValidFieldException.class, () -> productCreateUseCase.createProduct(product)
+                ProductNotValidFieldException.class, () -> productUseCase.createProduct(product)
         );
         assertEquals(ProductExceptionMessage.EMPTY_NAME, productNotValidFieldException.getMessage());
     }
@@ -110,7 +110,7 @@ class ProductCreateUseCaseTest {
         Product product = new Product(1L, "Product1", "", BigDecimal.TEN, testStock, brand, categories);
 
         ProductNotValidFieldException productNotValidFieldException = assertThrows(
-                ProductNotValidFieldException.class, () -> productCreateUseCase.createProduct(product)
+                ProductNotValidFieldException.class, () -> productUseCase.createProduct(product)
         );
         assertEquals(exceptionMessage, productNotValidFieldException.getMessage());
     }
@@ -128,7 +128,7 @@ class ProductCreateUseCaseTest {
         Product product = new Product(1L, "Product1", "", testPrice, 5, brand, categories);
 
         ProductNotValidFieldException productNotValidFieldException = assertThrows(
-                ProductNotValidFieldException.class, () -> productCreateUseCase.createProduct(product)
+                ProductNotValidFieldException.class, () -> productUseCase.createProduct(product)
         );
 
         assertEquals(exceptionMessage, productNotValidFieldException.getMessage());
@@ -140,7 +140,7 @@ class ProductCreateUseCaseTest {
         Brand brand = new Brand(1L, "Brand1", "Description1");
         Product product = new Product(1L, "Product1", "", BigDecimal.TEN, 5, brand, categories);
 
-        productCreateUseCase.createProduct(product);
+        productUseCase.createProduct(product);
 
         verify(productPersistencePort, times(1)).createProduct(product);
     }

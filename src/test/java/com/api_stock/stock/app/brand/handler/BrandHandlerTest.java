@@ -3,8 +3,7 @@ package com.api_stock.stock.app.brand.handler;
 import com.api_stock.stock.app.brand.dto.BrandRequest;
 import com.api_stock.stock.app.brand.mapper.IBrandRequestMapper;
 import com.api_stock.stock.app.brand.mapper.IBrandResponseMapper;
-import com.api_stock.stock.domain.brand.api.IBrandCreateServicePort;
-import com.api_stock.stock.domain.brand.api.IBrandsGetByPageServicePort;
+import com.api_stock.stock.domain.brand.api.IBrandServicePort;
 import com.api_stock.stock.domain.brand.model.Brand;
 import com.api_stock.stock.app.brand.dto.BrandResponse;
 import com.api_stock.stock.domain.page.PageData;
@@ -21,10 +20,7 @@ import static org.mockito.Mockito.*;
 class BrandHandlerTest {
 
     @Mock
-    private IBrandCreateServicePort brandCreateServicePort;
-
-    @Mock
-    private IBrandsGetByPageServicePort brandsGetByPageServicePort;
+    private IBrandServicePort brandServicePort;
 
     @Mock
     private IBrandRequestMapper brandRequestMapper;
@@ -49,7 +45,7 @@ class BrandHandlerTest {
 
         brandHandler.createBrand(brandRequest);
 
-        verify(brandCreateServicePort, times(1)).createBrand(brand);
+        verify(brandServicePort, times(1)).createBrand(brand);
     }
 
     @Test
@@ -61,7 +57,7 @@ class BrandHandlerTest {
         PageData<Brand> mockBrandPage = mock(PageData.class);
         PageData<BrandResponse> mockResponsePage = mock(PageData.class);
 
-        when(brandsGetByPageServicePort.getBrandsByPage(page, size, sortDirection)).thenReturn(mockBrandPage);
+        when(brandServicePort.getBrandsByPage(page, size, sortDirection)).thenReturn(mockBrandPage);
         when(brandResponseMapper.toPageResponse(mockBrandPage)).thenReturn(mockResponsePage);
 
         PageData<BrandResponse> result = brandHandler.getBrandsByPage(page, size, sortDirection);
@@ -69,7 +65,7 @@ class BrandHandlerTest {
         assertNotNull(result);
         assertEquals(mockResponsePage, result);
 
-        verify(brandsGetByPageServicePort).getBrandsByPage(page, size, sortDirection);
+        verify(brandServicePort).getBrandsByPage(page, size, sortDirection);
         verify(brandResponseMapper).toPageResponse(mockBrandPage);
     }
 

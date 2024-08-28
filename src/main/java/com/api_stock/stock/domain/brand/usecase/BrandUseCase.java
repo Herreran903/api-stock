@@ -1,18 +1,22 @@
 package com.api_stock.stock.domain.brand.usecase;
 
-import com.api_stock.stock.domain.brand.api.IBrandCreateServicePort;
+import com.api_stock.stock.domain.brand.api.IBrandServicePort;
 import com.api_stock.stock.domain.brand.exception.BrandExceptionMessage;
 import com.api_stock.stock.domain.brand.exception.ex.BrandAlreadyExistException;
+import com.api_stock.stock.domain.brand.exception.ex.BrandNotFoundByIdException;
 import com.api_stock.stock.domain.brand.exception.ex.BrandNotValidFieldException;
+import com.api_stock.stock.domain.brand.exception.ex.BrandNotValidParameterException;
 import com.api_stock.stock.domain.brand.model.Brand;
 import com.api_stock.stock.domain.brand.spi.IBrandPersistencePort;
 import com.api_stock.stock.domain.brand.util.BrandConstants;
+import com.api_stock.stock.domain.page.PageData;
+import com.api_stock.stock.domain.util.GlobalConstants;
 
-public class BrandCreateUseCase implements IBrandCreateServicePort {
+public class BrandUseCase implements IBrandServicePort {
 
     private final IBrandPersistencePort brandPersistencePort;
 
-    public BrandCreateUseCase(IBrandPersistencePort brandPersistencePort) {
+    public BrandUseCase(IBrandPersistencePort brandPersistencePort) {
         this.brandPersistencePort = brandPersistencePort;
     }
 
@@ -38,5 +42,25 @@ public class BrandCreateUseCase implements IBrandCreateServicePort {
             throw new BrandAlreadyExistException(BrandExceptionMessage.ALREADY_EXIST_BRAND);
 
         brandPersistencePort.createBrand(brand);
+    }
+
+    @Override
+    public PageData<Brand> getBrandsByPage(int page, int size, String sortDirection) {
+        if (!(GlobalConstants.DESC.equalsIgnoreCase(sortDirection) || GlobalConstants.ASC.equalsIgnoreCase(sortDirection)))
+            throw new BrandNotValidParameterException(BrandExceptionMessage.INVALID_SORT_DIRECTION);
+
+        if (page < 0)
+            throw new BrandNotValidParameterException(BrandExceptionMessage.NO_NEGATIVE_PAGE);
+
+        if (size <= 0)
+            throw new BrandNotValidParameterException(BrandExceptionMessage.GREATER_ZERO_SIZE);
+
+        return brandPersistencePort.getBrandsByPage(page, size, sortDirection);
+    }
+
+    @Override
+    public Brand getBrandById(Long id) {
+        return brandPersistencePort.getBrandById(id)
+                .orElseThrow(() -> new BrandNotFoundByIdException(BrandExceptionMessage.NO_FOUND_BRAND));
     }
 }

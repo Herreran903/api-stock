@@ -1,12 +1,8 @@
 package com.api_stock.stock.infra.brand.config;
 
-import com.api_stock.stock.domain.brand.api.IBrandCreateServicePort;
-import com.api_stock.stock.domain.brand.api.IBrandGetByIdServicePort;
-import com.api_stock.stock.domain.brand.api.IBrandsGetByPageServicePort;
+import com.api_stock.stock.domain.brand.api.IBrandServicePort;
 import com.api_stock.stock.domain.brand.spi.IBrandPersistencePort;
-import com.api_stock.stock.domain.brand.usecase.BrandCreateUseCase;
-import com.api_stock.stock.domain.brand.usecase.BrandGetByIdUseCase;
-import com.api_stock.stock.domain.brand.usecase.BrandsGetByPageUseCase;
+import com.api_stock.stock.domain.brand.usecase.BrandUseCase;
 import com.api_stock.stock.infra.brand.out.BrandAdapter;
 import com.api_stock.stock.infra.brand.out.IBrandMapper;
 import com.api_stock.stock.infra.brand.out.IBrandRepository;
@@ -27,17 +23,7 @@ public class BeanBrandConfig {
     }
 
     @Bean
-    public IBrandCreateServicePort brandCreateServicePort() {
-        return new BrandCreateUseCase(brandPersistencePort());
-    }
-
-    @Bean
-    public IBrandsGetByPageServicePort brandsGetByPageServicePort() {
-        return new BrandsGetByPageUseCase(brandPersistencePort());
-    }
-
-    @Bean
-    public IBrandGetByIdServicePort brandGetByIdServicePort() {
-        return new BrandGetByIdUseCase(brandPersistencePort());
+    public IBrandServicePort brandCreateServicePort() {
+        return new BrandUseCase(brandPersistencePort());
     }
 }

@@ -2,7 +2,7 @@ package com.api_stock.stock.domain.product.usecase;
 
 import com.api_stock.stock.domain.brand.model.Brand;
 import com.api_stock.stock.domain.category.model.Category;
-import com.api_stock.stock.domain.product.api.IProductCreateServicePort;
+import com.api_stock.stock.domain.product.api.IProductServicePort;
 import com.api_stock.stock.domain.product.exception.ProductExceptionMessage;
 import com.api_stock.stock.domain.product.exception.ex.ProductNotValidFieldException;
 import com.api_stock.stock.domain.product.model.Product;
@@ -14,11 +14,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class ProductCreateUseCase implements IProductCreateServicePort {
+public class ProductUseCase implements IProductServicePort {
 
     private final IProductPersistencePort productPersistencePort;
 
-    public ProductCreateUseCase(IProductPersistencePort productPersistencePort) {
+    public ProductUseCase(IProductPersistencePort productPersistencePort) {
         this.productPersistencePort = productPersistencePort;
     }
 
