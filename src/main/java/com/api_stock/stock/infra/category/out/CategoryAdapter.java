@@ -12,22 +12,22 @@ import java.util.List;
 
 public class CategoryAdapter implements ICategoryPersistencePort {
 
-    ICategoryRepository repository;
-    ICategoryMapper mapper;
+    ICategoryRepository categoryRepository;
+    ICategoryMapper categoryMapper;
 
-    public CategoryAdapter(ICategoryRepository repository, ICategoryMapper mapper) {
-        this.repository = repository;
-        this.mapper = mapper;
+    public CategoryAdapter(ICategoryRepository categoryRepository, ICategoryMapper categoryMapper) {
+        this.categoryRepository = categoryRepository;
+        this.categoryMapper = categoryMapper;
     }
 
     @Override
     public void createCategory(Category category) {
-        repository.save(mapper.toEntity(category));
+        categoryRepository.save(categoryMapper.toEntity(category));
     }
 
     @Override
     public Boolean isCategoryPresentByName(String name){
-        return repository.findByName(name).isPresent();
+        return categoryRepository.findByName(name).isPresent();
     }
 
     @Override
@@ -35,9 +35,9 @@ public class CategoryAdapter implements ICategoryPersistencePort {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable sortedPageable = PageRequest.of(page, size, Sort.by(direction, "name"));
 
-        Page<CategoryEntity> categoryEntityPage = repository.findAll(sortedPageable);
+        Page<CategoryEntity> categoryEntityPage = categoryRepository.findAll(sortedPageable);
 
-        List<Category> categories = mapper.toCategoriesList(categoryEntityPage.getContent());
+        List<Category> categories = categoryMapper.toCategoriesList(categoryEntityPage.getContent());
 
         return new PageData<>(
                 categories,
@@ -50,5 +50,8 @@ public class CategoryAdapter implements ICategoryPersistencePort {
         );
     }
 
-
+    @Override
+    public List<Category> getCategoriesByIds(List<Long> ids) {
+        return categoryMapper.toCategoriesList(categoryRepository.findAllById(ids));
+    }
 }

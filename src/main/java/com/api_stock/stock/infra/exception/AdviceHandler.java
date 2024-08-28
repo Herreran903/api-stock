@@ -1,6 +1,8 @@
 package com.api_stock.stock.infra.exception;
 
+import com.api_stock.stock.domain.brand.exception.ex.BrandNotFoundByIdException;
 import com.api_stock.stock.domain.brand.exception.ex.BrandNotValidParameterException;
+import com.api_stock.stock.domain.category.exception.ex.CategoriesNotFoundByIdsException;
 import com.api_stock.stock.domain.category.exception.ex.CategoryAlreadyExistException;
 import com.api_stock.stock.domain.category.exception.ex.CategoryNotValidFieldException;
 import com.api_stock.stock.domain.category.exception.ex.CategoryNotValidParameterException;
@@ -69,6 +71,20 @@ public class AdviceHandler {
         return new ResponseEntity<>(details, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(CategoriesNotFoundByIdsException.class)
+    public ResponseEntity<ExceptionDetails> handleCategoriesNotFoundByIdsException(CategoriesNotFoundByIdsException ex) {
+        ExceptionDetails details = new ExceptionDetails(
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                ex.getMessage(),
+                ex.getMissingIds().toString(),
+                LocalDateTime.now(),
+                null
+        );
+
+        return new ResponseEntity<>(details, HttpStatus.NOT_FOUND);
+    }
+
     //Brand
     @ExceptionHandler(BrandAlreadyExistException.class)
     public ResponseEntity<ExceptionDetails> handleCategoryAlreadyExistException(BrandAlreadyExistException ex, WebRequest request) {
@@ -110,6 +126,20 @@ public class AdviceHandler {
         );
 
         return new ResponseEntity<>(details, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(BrandNotFoundByIdException.class)
+    public ResponseEntity<ExceptionDetails> handleCategoriesNotFoundByIdsException(BrandNotFoundByIdException ex) {
+        ExceptionDetails details = new ExceptionDetails(
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                ex.getMessage(),
+                "",
+                LocalDateTime.now(),
+                null
+        );
+
+        return new ResponseEntity<>(details, HttpStatus.NOT_FOUND);
     }
 
     //General

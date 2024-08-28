@@ -55,8 +55,8 @@ public class CategoryController {
             description = "This endpoint allows you to retrieve a paginated list of categories with optional sorting. " +
                     "You can specify the page number, page size, and sorting direction.",
             parameters = {
-                    @Parameter(name = "page", description = "Page number to retrieve", schema = @Schema(implementation = Integer.class)),
-                    @Parameter(name = "size", description = "Number of categories per page", schema = @Schema(implementation = Integer.class)),
+                    @Parameter(name = "page", description = "Page number to retrieve", schema = @Schema(implementation = int.class)),
+                    @Parameter(name = "size", description = "Number of categories per page", schema = @Schema(implementation = int.class)),
                     @Parameter(name = "sortDirection", description = "Sort direction (ASC or DESC)", schema = @Schema(implementation = String.class))
             }
     )

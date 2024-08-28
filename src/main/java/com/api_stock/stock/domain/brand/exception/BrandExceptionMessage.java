@@ -34,4 +34,7 @@ public final class BrandExceptionMessage {
     public static final String ALREADY_EXIST_BRAND =
             "Brand already exists";
 
+    public static final String NO_FOUND_BRAND =
+            "Brand does not found";
+
 }

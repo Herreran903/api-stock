@@ -4,13 +4,10 @@ import com.api_stock.stock.app.category.dto.CategoryResponse;
 import com.api_stock.stock.domain.category.model.Category;
 import com.api_stock.stock.domain.page.PageData;
 import org.mapstruct.Mapper;
-import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring",
-        unmappedSourcePolicy = ReportingPolicy.IGNORE,
-        unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring")
 public interface ICategoryResponseMapper {
 
     CategoryResponse toResponse(Category category);

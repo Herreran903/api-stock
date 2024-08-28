@@ -1,8 +1,10 @@
 package com.api_stock.stock.infra.category.config;
 
+import com.api_stock.stock.domain.category.api.ICategoriesGetByIdsServicePort;
 import com.api_stock.stock.domain.category.api.ICategoryCreateServicePort;
 import com.api_stock.stock.domain.category.api.ICategoriesGetByPageServicePort;
 import com.api_stock.stock.domain.category.spi.ICategoryPersistencePort;
+import com.api_stock.stock.domain.category.usecase.CategoriesGetByIdsUseCase;
 import com.api_stock.stock.domain.category.usecase.CategoryCreateUseCase;
 import com.api_stock.stock.domain.category.usecase.CategoriesGetByPageUseCase;
 import com.api_stock.stock.infra.category.out.CategoryAdapter;
@@ -30,7 +32,12 @@ public class BeanCategoryConfig {
     }
 
     @Bean
-    ICategoriesGetByPageServicePort getCategoriesByPageService() {
+    public ICategoriesGetByPageServicePort getCategoriesByPageService() {
         return new CategoriesGetByPageUseCase(categoryPersistence());
+    }
+
+    @Bean
+    public ICategoriesGetByIdsServicePort getCategoriesGetByPageService() {
+        return new CategoriesGetByIdsUseCase(categoryPersistence());
     }
 }

@@ -133,7 +133,7 @@ class BrandControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        verify(brandHandler).createBrand(any(BrandRequest.class));
+        verify(brandHandler, times(1)).createBrand(any(BrandRequest.class));
     }
 
     @Test

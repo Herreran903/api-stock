@@ -31,8 +31,8 @@ class CategoryCreateUseCaseTest {
     void shouldThrowExceptionWhenNameExceedsMaxLength() {
         Category category = new Category(
                 1L,
-                "123457891234578912345789123457891234578912345789123457891234578912345789123457891234578912345789",
-                "Description");
+                "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean m",
+                "Devices and gadgets");
 
 
         CategoryNotValidFieldException exception = assertThrows(
@@ -46,8 +46,9 @@ class CategoryCreateUseCaseTest {
     void shouldThrowExceptionWhenDescriptionExceedsMaxLength() {
         Category category = new Category(
                 1L,
-                "Name",
-                "123457891234578912345789123457891234578912345789123457891234578912345789123457891234578912345789");
+                "Electronics",
+                "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. " +
+                        "Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur rid");
 
         CategoryNotValidFieldException exception = assertThrows(
                 CategoryNotValidFieldException.class, () -> categoryCreateUseCase.createCategory(category)
@@ -58,7 +59,7 @@ class CategoryCreateUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenNameIsNull() {
-        Category category = new Category(1L, null, "Description");
+        Category category = new Category(1L, null, "Devices and gadgets");
 
         CategoryNotValidFieldException exception = assertThrows(
                 CategoryNotValidFieldException.class, () -> categoryCreateUseCase.createCategory(category)
@@ -69,7 +70,7 @@ class CategoryCreateUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenNameIsEmpty() {
-        Category category = new Category(1L, "", "Description");
+        Category category = new Category(1L, "", "Devices and gadgets");
 
         CategoryNotValidFieldException exception = assertThrows(
                 CategoryNotValidFieldException.class, () -> categoryCreateUseCase.createCategory(category)
@@ -80,7 +81,7 @@ class CategoryCreateUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenDescriptionIsNull() {
-        Category category = new Category(1L, "Name", null);
+        Category category = new Category(1L, "Electronics", null);
 
         CategoryNotValidFieldException exception = assertThrows(
                 CategoryNotValidFieldException.class, () -> categoryCreateUseCase.createCategory(category)
@@ -91,7 +92,7 @@ class CategoryCreateUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenDescriptionIsEmpty() {
-        Category category = new Category(1L, "Name", "");
+        Category category = new Category(1L, "Electronics", "");
 
         CategoryNotValidFieldException exception = assertThrows(
                 CategoryNotValidFieldException.class, () -> categoryCreateUseCase.createCategory(category)
@@ -102,21 +103,21 @@ class CategoryCreateUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenCategoryAlreadyExists() {
-        Category category = new Category(1L, "ExistingCategory", "Description");
+        Category category = new Category(1L, "Electronics", "Devices and gadgets");
 
-        when(categoryPersistencePort.isCategoryPresentByName("ExistingCategory")).thenReturn(true);
+        when(categoryPersistencePort.isCategoryPresentByName("Electronics")).thenReturn(true);
 
         CategoryAlreadyExistException exception = assertThrows(
                 CategoryAlreadyExistException.class, () -> categoryCreateUseCase.createCategory(category)
         );
 
-        verify(categoryPersistencePort, times(1)).isCategoryPresentByName("ExistingCategory");
+        verify(categoryPersistencePort, times(1)).isCategoryPresentByName("Electronics");
         assertEquals(CategoryExceptionMessage.ALREADY_EXIST_CATEGORY, exception.getMessage());
     }
 
     @Test
     void shouldCreateCategorySuccessfully() {
-        Category category = new Category(1L, "Name", "Description");
+        Category category = new Category(1L, "Electronics", "Devices and gadgets");
 
         assertDoesNotThrow(() -> categoryCreateUseCase.createCategory(category));
 

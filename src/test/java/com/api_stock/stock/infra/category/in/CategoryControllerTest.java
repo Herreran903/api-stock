@@ -132,7 +132,7 @@ class CategoryControllerTest {
                 .andDo(print())
                 .andExpect(status().isCreated());
 
-        verify(categoryHandler).createBrand(any(CategoryRequest.class));
+        verify(categoryHandler, times(1)).createBrand(any(CategoryRequest.class));
     }
 
     @Test

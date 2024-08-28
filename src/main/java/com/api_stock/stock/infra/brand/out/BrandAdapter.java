@@ -9,25 +9,26 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
+import java.util.Optional;
 
 public class BrandAdapter implements IBrandPersistencePort {
 
-    private final IBrandRepository repository;
-    private final IBrandMapper mapper;
+    private final IBrandRepository brandRepository;
+    private final IBrandMapper brandMapper;
 
-    public BrandAdapter(IBrandRepository repository, IBrandMapper mapper) {
-        this.repository = repository;
-        this.mapper = mapper;
+    public BrandAdapter(IBrandRepository brandRepository, IBrandMapper brandMapper) {
+        this.brandRepository = brandRepository;
+        this.brandMapper = brandMapper;
     }
 
     @Override
     public void createBrand(Brand brand) {
-        repository.save(mapper.toEntity(brand));
+        brandRepository.save(brandMapper.toEntity(brand));
     }
 
     @Override
     public Boolean isBrandPresentByName(String brandName) {
-        return repository.findByName(brandName).isPresent();
+        return brandRepository.findByName(brandName).isPresent();
     }
 
     @Override
@@ -35,9 +36,9 @@ public class BrandAdapter implements IBrandPersistencePort {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable sortedPageable = PageRequest.of(page, size, Sort.by(direction, "name"));
 
-        Page<BrandEntity> brandEntityPage = repository.findAll(sortedPageable);
+        Page<BrandEntity> brandEntityPage = brandRepository.findAll(sortedPageable);
 
-        List<Brand> brands = mapper.toBrandsList(brandEntityPage.getContent());
+        List<Brand> brands = brandMapper.toBrandsList(brandEntityPage.getContent());
 
         return new PageData<>(
                 brands,
@@ -49,4 +50,10 @@ public class BrandAdapter implements IBrandPersistencePort {
                 brandEntityPage.hasPrevious()
         );
     }
+
+    @Override
+    public Optional<Brand> getBrandById(Long brandId) {
+        return brandRepository.findById(brandId).map(brandMapper::toBrand);
+    }
+
 }

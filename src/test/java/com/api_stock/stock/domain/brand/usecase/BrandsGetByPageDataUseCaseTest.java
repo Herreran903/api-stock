@@ -7,6 +7,8 @@ import com.api_stock.stock.domain.brand.spi.IBrandPersistencePort;
 import com.api_stock.stock.domain.page.PageData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -62,11 +64,11 @@ class BrandsGetByPageDataUseCaseTest {
         );
     }
 
-    @Test
-    void shouldReturnBrandsPage() {
-        int page = 0;
-        int size = 10;
-        String sortDirection = "ASC";
+    @ParameterizedTest
+    @ValueSource(strings = {"ASC", "DESC"})
+    void shouldReturnBrandsPage(String sortDirection) {
+        Integer page = 0;
+        Integer size = 10;
 
         PageData<Brand> expectedBrandPage = new PageData<>(
                 List.of(new Brand(1L, "Nike", "High quality clothing")),

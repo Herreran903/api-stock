@@ -32,7 +32,7 @@ class BrandCreateUseCaseTest {
     void shouldThrowExceptionWhenNameExceedsMaxLength() {
         Brand brand = new Brand(
                 1L,
-                "123457891234578912345789123457891234578912345789123457891234578912345789123457891234578912345789",
+                "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean m",
                 "High quality clothing");
 
 
@@ -48,9 +48,10 @@ class BrandCreateUseCaseTest {
         Brand brand = new Brand(
                 1L,
                 "Nike",
-                "1234578912345789123457891234578912345789123457891234578912345789123457891234578912345789" +
-                        "1234578912345789123457891234578912345789123457891234578912345789123457891234578912345789" +
-                        "1234578912345789");
+                "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. " +
+                        "Aenean commodo ligula eget dolor. Aenean massa. " +
+                        "Cum sociis natoque penatibus et magnis dis parturient montes, " +
+                        "nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu");
 
         BrandNotValidFieldException exception = assertThrows(
                 BrandNotValidFieldException.class, () -> brandCreateUseCase.createBrand(brand)
