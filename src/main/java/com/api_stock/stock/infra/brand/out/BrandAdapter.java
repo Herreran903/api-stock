@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
+import java.util.Optional;
 
 public class BrandAdapter implements IBrandPersistencePort {
 
@@ -49,4 +50,10 @@ public class BrandAdapter implements IBrandPersistencePort {
                 brandEntityPage.hasPrevious()
         );
     }
+
+    @Override
+    public Optional<Brand> getBrandById(Long brandId) {
+        return repository.findById(brandId).map(mapper::toBrand);
+    }
+
 }
