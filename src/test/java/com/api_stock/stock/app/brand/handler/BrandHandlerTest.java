@@ -54,8 +54,8 @@ class BrandHandlerTest {
 
     @Test
     void shouldReturnBrandPageWhenParametersAreValid() {
-        int page = 0;
-        int size = 10;
+        Integer page = 0;
+        Integer size = 10;
         String sortDirection = "ASC";
 
         PageData<Brand> mockBrandPage = mock(PageData.class);

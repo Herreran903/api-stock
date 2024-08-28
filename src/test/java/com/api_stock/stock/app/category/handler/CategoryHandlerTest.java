@@ -53,8 +53,8 @@ class CategoryHandlerTest {
 
     @Test
     void shouldReturnCategoryPageWhenParametersAreValid() {
-        int page = 0;
-        int size = 10;
+        Integer page = 0;
+        Integer size = 10;
         String sortDirection = "ASC";
 
         PageData<Category> mockCategoryPage = mock(PageData.class);

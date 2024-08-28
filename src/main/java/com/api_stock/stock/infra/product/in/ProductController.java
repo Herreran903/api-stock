@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -39,7 +40,7 @@ public class ProductController {
                     @Parameter(name = "price", description = "Price of the product", required = true,
                             schema = @Schema(implementation = BigDecimal.class)),
                     @Parameter(name = "stock", description = "Stock quantity of the product",
-                            schema = @Schema(implementation = Integer.class)),
+                            schema = @Schema(implementation = int.class)),
                     @Parameter(name = "brandId", description = "ID of the brand associated with the product", required = true,
                             schema = @Schema(implementation = Long.class)),
                     @Parameter(name = "categoryIds", description = "List of category IDs associated with the product", required = true,
@@ -64,6 +65,6 @@ public class ProductController {
     @PostMapping("/")
     public ResponseEntity<Void> createProduct(@Valid @RequestBody ProductRequest productRequest) {
         productHandler.createProduct(productRequest);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

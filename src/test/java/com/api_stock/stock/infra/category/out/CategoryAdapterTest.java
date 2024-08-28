@@ -14,16 +14,15 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class CategoryAdapterTest {
 
     @Mock
-    private ICategoryRepository repository;
+    private ICategoryRepository categoryRepository;
 
     @Mock
-    private ICategoryMapper mapper;
+    private ICategoryMapper categoryMapper;
 
     @InjectMocks
     private CategoryAdapter categoryAdapter;
@@ -38,32 +37,32 @@ class CategoryAdapterTest {
         Category category = new Category(1L, "Electronics", "Devices and gadgets");
         CategoryEntity categoryEntity = new CategoryEntity();
 
-        when(repository.findByName("Electronics")).thenReturn(Optional.empty());
-        when(mapper.toEntity(category)).thenReturn(categoryEntity);
+        when(categoryRepository.findByName("Electronics")).thenReturn(Optional.empty());
+        when(categoryMapper.toEntity(category)).thenReturn(categoryEntity);
 
         categoryAdapter.createCategory(category);
 
-        verify(repository).save(categoryEntity);
+        verify(categoryRepository).save(categoryEntity);
     }
 
     @Test
     void shouldReturnCategoriesPage() {
         //Arrange
-        int page = 0;
-        int size = 10;
+        Integer page = 0;
+        Integer size = 10;
         String orderDirection = "ASC";
 
         List<CategoryEntity> entities = List.of(
                 new CategoryEntity(1L, "Electronics","Devices and gadgets"),
                 new CategoryEntity(2L, "Electronics1", "Devices and gadgets"));
         Page<CategoryEntity> pageResult = new PageImpl<>(entities, PageRequest.of(page, size), entities.size());
-        when(repository.findAll(any(Pageable.class))).thenReturn(pageResult);
+        when(categoryRepository.findAll(any(Pageable.class))).thenReturn(pageResult);
 
         List<Category> categories = List.of(
                 new Category(1L, "Electronics","Devices and gadgets"),
                 new Category(2L, "Electronics1", "Devices and gadgets"));
 
-        when(mapper.toCategoriesList(entities)).thenReturn(categories);
+        when(categoryMapper.toCategoriesList(entities)).thenReturn(categories);
 
         //Act
         PageData<Category> result = categoryAdapter.getCategoriesByPage(page, size, orderDirection);
@@ -77,14 +76,14 @@ class CategoryAdapterTest {
         assertFalse(result.isHasNext());
         assertFalse(result.isHasPrevious());
 
-        verify(repository).findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name")));
-        verify(mapper).toCategoriesList(entities);
+        verify(categoryRepository).findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name")));
+        verify(categoryMapper).toCategoriesList(entities);
     }
 
     @Test
     void testIsCategoryPresentByNameWhenNameExists() {
-        String name = "ExistingName";
-        when(repository.findByName(name)).thenReturn(Optional.of(new CategoryEntity(1L, name, "Description")));
+        String name = "Electronics";
+        when(categoryRepository.findByName(name)).thenReturn(Optional.of(new CategoryEntity(1L, name, "Devices and gadgets")));
 
         Boolean result = categoryAdapter.isCategoryPresentByName(name);
 
@@ -93,11 +92,33 @@ class CategoryAdapterTest {
 
     @Test
     void testIsCategoryPresentByNameWhenNameDoesNotExist() {
-        String name = "NonExistingName";
-        when(repository.findByName(name)).thenReturn(Optional.empty());
+        String name = "Electronics";
+        when(categoryRepository.findByName(name)).thenReturn(Optional.empty());
 
         Boolean result = categoryAdapter.isCategoryPresentByName(name);
 
         assertFalse(result);
+    }
+
+    @Test
+    void shouldReturnCategoriesWhenIdsAreValid() {
+        List<Long> ids = List.of(1L, 2L);
+        List<CategoryEntity> categoryEntities = List.of(
+                new CategoryEntity(1L, "Electronics", "Devices and gadgets"),
+                new CategoryEntity(2L, "Books", "Different kinds of books")
+        );
+        List<Category> expectedCategories = List.of(
+                new Category(1L, "Electronics", "Devices and gadgets"),
+                new Category(2L, "Books", "Different kinds of books")
+        );
+
+        when(categoryRepository.findAllById(ids)).thenReturn(categoryEntities);
+        when(categoryMapper.toCategoriesList(categoryEntities)).thenReturn(expectedCategories);
+
+        List<Category> result = categoryAdapter.getCategoriesByIds(ids);
+
+        assertEquals(expectedCategories, result);
+        verify(categoryRepository, times(1)).findAllById(ids);
+        verify(categoryMapper, times(1)).toCategoriesList(categoryEntities);
     }
 }

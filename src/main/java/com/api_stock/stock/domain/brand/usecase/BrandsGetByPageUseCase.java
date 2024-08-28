@@ -24,7 +24,6 @@ public class BrandsGetByPageUseCase implements IBrandsGetByPageServicePort {
         if (page < 0)
             throw new BrandNotValidParameterException(BrandExceptionMessage.NO_NEGATIVE_PAGE);
 
-
         if (size <= 0)
             throw new BrandNotValidParameterException(BrandExceptionMessage.GREATER_ZERO_SIZE);
 

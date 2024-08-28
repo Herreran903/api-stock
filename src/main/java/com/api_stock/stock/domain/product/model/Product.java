@@ -12,12 +12,12 @@ public class Product {
     private String name;
     private String description;
     private BigDecimal price;
-    private int stock;
+    private Integer stock;
 
     private Brand brand;
     private List<Category> categories;
 
-    public Product(List<Category> categories, int stock, String name, Long id, String description, BigDecimal price, Brand brand) {
+    public Product(Long id, String name, String description, BigDecimal price, Integer stock, Brand brand, List<Category> categories) {
         this.categories = categories;
         this.stock = stock;
         this.name = name;
@@ -59,11 +59,11 @@ public class Product {
         this.price = price;
     }
 
-    public int getStock() {
+    public Integer getStock() {
         return stock;
     }
 
-    public void setStock(int stock) {
+    public void setStock(Integer stock) {
         this.stock = stock;
     }
 
