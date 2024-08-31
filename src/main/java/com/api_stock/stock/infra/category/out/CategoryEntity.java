@@ -1,5 +1,6 @@
 package com.api_stock.stock.infra.category.out;
 
+import com.api_stock.stock.domain.category.util.CategoryConstants;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,9 +15,9 @@ public class CategoryEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false, unique = true, length = CategoryConstants.MAX_NAME_LENGTH)
     private String name;
 
-    @Column(nullable = false, length = 90)
+    @Column(nullable = false, length = CategoryConstants.MAX_DESCRIPTION_LENGTH)
     private String description;
 }

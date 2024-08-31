@@ -4,6 +4,7 @@ import com.api_stock.stock.app.product.dto.ProductRequest;
 import com.api_stock.stock.app.product.handler.IProductHandler;
 import com.api_stock.stock.domain.product.exception.ProductExceptionMessage;
 import com.api_stock.stock.domain.product.util.ProductConstants;
+import com.api_stock.stock.domain.util.GlobalConstants;
 import com.api_stock.stock.domain.util.GlobalExceptionMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -18,8 +19,8 @@ import java.util.List;
 import java.util.stream.LongStream;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -287,5 +288,91 @@ class ProductControllerTest {
                 .andExpect(status().isCreated());
 
         verify(productHandler, times(1)).createProduct(any(ProductRequest.class));
+    }
+
+    @Test
+    void shouldReturnBadRequestIfSortDirectionIsInvalid() throws Exception {
+        String expectedMessage = GlobalExceptionMessage.INVALID_PARAMETERS;
+        String expectedErrorMessage = GlobalExceptionMessage.INVALID_SORT_DIRECTION;
+
+        mvc.perform(get("/products/")
+                        .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
+                        .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
+                        .param("sortDirection", "INVALID")
+                        .param("sortProperty", ProductConstants.NAME))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(expectedMessage))
+                .andExpect(jsonPath("$.errors[0].field").value("sortDirection"))
+                .andExpect(jsonPath("$.errors[0].message").value(expectedErrorMessage));
+    }
+
+    @Test
+    void shouldReturnBadRequestIfSortPropertyIsInvalid() throws Exception {
+        String expectedMessage = GlobalExceptionMessage.INVALID_PARAMETERS;
+        String expectedErrorMessage = ProductExceptionMessage.INVALID_PROPERTY_DIRECTION;
+
+        mvc.perform(get("/products/")
+                        .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
+                        .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
+                        .param("sortDirection", GlobalConstants.ASC)
+                        .param("sortProperty", "INVALID"))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(expectedMessage))
+                .andExpect(jsonPath("$.errors[0].field").value("sortProperty"))
+                .andExpect(jsonPath("$.errors[0].message").value(expectedErrorMessage));
+    }
+
+    @Test
+    void shouldReturnBadRequestIfPageIsNegative() throws Exception {
+        String expectedMessage = GlobalExceptionMessage.INVALID_PARAMETERS;
+        String expectedErrorMessage = GlobalExceptionMessage.NO_NEGATIVE_PAGE;
+
+        mvc.perform(get("/products/")
+                        .param("page", "-1")
+                        .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
+                        .param("sortDirection", GlobalConstants.ASC)
+                        .param("sortProperty", ProductConstants.NAME))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(expectedMessage))
+                .andExpect(jsonPath("$.errors[0].field").value("page"))
+                .andExpect(jsonPath("$.errors[0].message").value(expectedErrorMessage));
+
+    }
+
+    @Test
+    void shouldReturnBadRequestIfSizeIsZeroOrNegative() throws Exception {
+        String expectedMessage = GlobalExceptionMessage.INVALID_PARAMETERS;
+        String expectedErrorMessage = GlobalExceptionMessage.GREATER_ZERO_SIZE;
+
+        mvc.perform(get("/products/")
+                        .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
+                        .param("size", "0")
+                        .param("sortDirection", GlobalConstants.ASC)
+                        .param("sortProperty", ProductConstants.NAME))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(expectedMessage))
+                .andExpect(jsonPath("$.errors[0].field").value("size"))
+                .andExpect(jsonPath("$.errors[0].message").value(expectedErrorMessage));
+    }
+
+    @Test
+    void shouldReturnOkWhenParametersAreValid() throws Exception {
+        mvc.perform(get("/products/")
+                        .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
+                        .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
+                        .param("sortDirection", GlobalConstants.ASC)
+                        .param("sortProperty", ProductConstants.NAME))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        verify(productHandler, times(1)).getProductsByPage(
+                GlobalConstants.MIN_PAGE_NUMBER,
+                GlobalConstants.MIN_PAGE_SIZE,
+                GlobalConstants.ASC,
+                ProductConstants.NAME);
     }
 }

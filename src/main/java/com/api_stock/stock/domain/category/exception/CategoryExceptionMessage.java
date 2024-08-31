@@ -22,15 +22,6 @@ public final class CategoryExceptionMessage {
     public static final String EMPTY_DESCRIPTION =
             "The 'description' field is empty";
 
-    public static final String INVALID_SORT_DIRECTION =
-            "Sort direction must be 'ASC' or 'DESC'";
-
-    public static final String GREATER_ZERO_SIZE =
-            "Size must be greater than zero";
-
-    public static final String NO_NEGATIVE_PAGE =
-            "Page number must be non-negative";
-
     public static final String ALREADY_EXIST_CATEGORY =
             "Category already exists";
 

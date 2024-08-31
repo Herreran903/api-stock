@@ -8,6 +8,8 @@ import com.api_stock.stock.domain.category.exception.ex.CategoryNotValidParamete
 import com.api_stock.stock.domain.category.model.Category;
 import com.api_stock.stock.domain.category.spi.ICategoryPersistencePort;
 import com.api_stock.stock.domain.page.PageData;
+import com.api_stock.stock.domain.util.GlobalConstants;
+import com.api_stock.stock.domain.util.GlobalExceptionMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -18,6 +20,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.List;
 
+import static com.api_stock.stock.utils.TestConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -29,18 +32,20 @@ class CategoryUseCaseTest {
     @InjectMocks
     private CategoryUseCase categoryUseCase;
 
+    private Category category;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        category = new Category(VALID_CATEGORY_ID, VALID_CATEGORY_NAME, VALID_CATEGORY_DESCRIPTION);
     }
 
     @Test
     void shouldThrowExceptionWhenNameExceedsMaxLength() {
-        Category category = new Category(
-                1L,
-                "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean m",
-                "Devices and gadgets");
-
+        category.setName(
+                "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean m"
+        );
 
         CategoryNotValidFieldException exception = assertThrows(
                 CategoryNotValidFieldException.class, () -> categoryUseCase.createCategory(category)
@@ -51,11 +56,10 @@ class CategoryUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenDescriptionExceedsMaxLength() {
-        Category category = new Category(
-                1L,
-                "Electronics",
+        category.setDescription(
                 "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. " +
-                        "Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur rid");
+                        "Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur rid"
+        );
 
         CategoryNotValidFieldException exception = assertThrows(
                 CategoryNotValidFieldException.class, () -> categoryUseCase.createCategory(category)
@@ -66,7 +70,7 @@ class CategoryUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenNameIsNull() {
-        Category category = new Category(1L, null, "Devices and gadgets");
+        category.setName(null);
 
         CategoryNotValidFieldException exception = assertThrows(
                 CategoryNotValidFieldException.class, () -> categoryUseCase.createCategory(category)
@@ -77,7 +81,7 @@ class CategoryUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenNameIsEmpty() {
-        Category category = new Category(1L, "", "Devices and gadgets");
+        category.setName("");
 
         CategoryNotValidFieldException exception = assertThrows(
                 CategoryNotValidFieldException.class, () -> categoryUseCase.createCategory(category)
@@ -88,7 +92,7 @@ class CategoryUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenDescriptionIsNull() {
-        Category category = new Category(1L, "Electronics", null);
+        category.setDescription(null);
 
         CategoryNotValidFieldException exception = assertThrows(
                 CategoryNotValidFieldException.class, () -> categoryUseCase.createCategory(category)
@@ -99,7 +103,7 @@ class CategoryUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenDescriptionIsEmpty() {
-        Category category = new Category(1L, "Electronics", "");
+        category.setDescription("");
 
         CategoryNotValidFieldException exception = assertThrows(
                 CategoryNotValidFieldException.class, () -> categoryUseCase.createCategory(category)
@@ -110,22 +114,18 @@ class CategoryUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenCategoryAlreadyExists() {
-        Category category = new Category(1L, "Electronics", "Devices and gadgets");
-
-        when(categoryPersistencePort.isCategoryPresentByName("Electronics")).thenReturn(true);
+        when(categoryPersistencePort.isCategoryPresentByName(VALID_CATEGORY_NAME)).thenReturn(true);
 
         CategoryAlreadyExistException exception = assertThrows(
                 CategoryAlreadyExistException.class, () -> categoryUseCase.createCategory(category)
         );
 
-        verify(categoryPersistencePort, times(1)).isCategoryPresentByName("Electronics");
+        verify(categoryPersistencePort, times(1)).isCategoryPresentByName(VALID_CATEGORY_NAME);
         assertEquals(CategoryExceptionMessage.ALREADY_EXIST_CATEGORY, exception.getMessage());
     }
 
     @Test
     void shouldCreateCategorySuccessfully() {
-        Category category = new Category(1L, "Electronics", "Devices and gadgets");
-
         assertDoesNotThrow(() -> categoryUseCase.createCategory(category));
 
         verify(categoryPersistencePort).createCategory(category);
@@ -133,10 +133,15 @@ class CategoryUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenSortDirectionIsInvalid() {
+        String invalidSortDirection = "INVALID";
+
         assertThrows(
                 CategoryNotValidParameterException.class,
-                () -> categoryUseCase.getCategoriesByPage(0, 10, "INVALID"),
-                CategoryExceptionMessage.INVALID_SORT_DIRECTION
+                () -> categoryUseCase.getCategoriesByPage(
+                        GlobalConstants.MIN_PAGE_NUMBER,
+                        GlobalConstants.MIN_PAGE_SIZE,
+                        invalidSortDirection),
+                GlobalExceptionMessage.INVALID_SORT_DIRECTION
         );
     }
 
@@ -144,8 +149,11 @@ class CategoryUseCaseTest {
     void shouldThrowExceptionWhenPageIsNegative() {
         assertThrows(
                 CategoryNotValidParameterException.class,
-                () -> categoryUseCase.getCategoriesByPage(-1, 10, "ASC"),
-                CategoryExceptionMessage.NO_NEGATIVE_PAGE
+                () -> categoryUseCase.getCategoriesByPage(
+                        -1,
+                        GlobalConstants.MIN_PAGE_SIZE,
+                        GlobalConstants.ASC),
+                GlobalExceptionMessage.NO_NEGATIVE_PAGE
         );
     }
 
@@ -153,26 +161,29 @@ class CategoryUseCaseTest {
     void shouldThrowExceptionWhenSizeIsZeroOrNegative() {
         assertThrows(
                 CategoryNotValidParameterException.class,
-                () -> categoryUseCase.getCategoriesByPage(0, 0, "ASC"),
-                CategoryExceptionMessage.GREATER_ZERO_SIZE
+                () -> categoryUseCase.getCategoriesByPage(
+                        GlobalConstants.MIN_PAGE_NUMBER,
+                        0,
+                        GlobalConstants.ASC),
+                GlobalExceptionMessage.GREATER_ZERO_SIZE
         );
 
         assertThrows(
                 CategoryNotValidParameterException.class,
-                () -> categoryUseCase.getCategoriesByPage(0, -1, "ASC"),
-                CategoryExceptionMessage.GREATER_ZERO_SIZE
+                () -> categoryUseCase.getCategoriesByPage(
+                        GlobalConstants.MIN_PAGE_NUMBER,
+                        -1,
+                        GlobalConstants.ASC),
+                GlobalExceptionMessage.GREATER_ZERO_SIZE
         );
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"ASC", "DESC"})
     void shouldReturnCategoriesPage(String sortDirection) {
-        int page = 0;
-        int size = 10;
-
         PageData<Category> expectedCategoryPage = new PageData<>(
-                List.of(new Category(1L, "Electronics", "Devices and gadgets")),
-                page,
+                List.of(category),
+                GlobalConstants.MIN_PAGE_NUMBER,
                 1,
                 true,
                 true,
@@ -180,22 +191,28 @@ class CategoryUseCaseTest {
                 false
         );
 
-        when(categoryPersistencePort.getCategoriesByPage(page, size, sortDirection)).thenReturn(expectedCategoryPage);
+        when(categoryPersistencePort.getCategoriesByPage(
+                GlobalConstants.MIN_PAGE_NUMBER,
+                GlobalConstants.MIN_PAGE_SIZE,
+                sortDirection)).thenReturn(expectedCategoryPage);
 
-        PageData<Category> result = categoryUseCase.getCategoriesByPage(page, size, sortDirection);
+        PageData<Category> result = categoryUseCase.getCategoriesByPage(
+                GlobalConstants.MIN_PAGE_NUMBER,
+                GlobalConstants.MIN_PAGE_SIZE,
+                sortDirection);
 
         assertEquals(expectedCategoryPage, result);
-        verify(categoryPersistencePort, times(1)).getCategoriesByPage(page, size, sortDirection);
+        verify(categoryPersistencePort, times(1)).getCategoriesByPage(
+                GlobalConstants.MIN_PAGE_NUMBER,
+                GlobalConstants.MIN_PAGE_SIZE,
+                sortDirection);
     }
 
     @Test
     void shouldThrowExceptionWhenSomeIdsAreNotFound() {
-        List<Long> ids = List.of(1L, 2L, 3L);
-        List<Category> foundCategories = List.of(
-                new Category(1L, "Electronics", "Devices and gadgets"),
-                new Category(2L, "Books", "Different kinds of books")
-        );
-        List<Long> missingIds = List.of(3L);
+        List<Long> ids = List.of(VALID_CATEGORY_ID, 2L);
+        List<Category> foundCategories = List.of(category);
+        List<Long> missingIds = List.of(2L);
 
         when(categoryPersistencePort.getCategoriesByIds(ids)).thenReturn(foundCategories);
 
@@ -210,9 +227,9 @@ class CategoryUseCaseTest {
 
     @Test
     void shouldReturnCategoriesWhenAllIdsAreFound() {
-        List<Long> ids = List.of(1L, 2L);
+        List<Long> ids = List.of(VALID_CATEGORY_ID, 2L);
         List<Category> expectedCategories = List.of(
-                new Category(1L, "Electronics", "Devices and gadgets"),
+                category,
                 new Category(2L, "Books", "Different kinds of books")
         );
 

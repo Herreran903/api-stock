@@ -7,12 +7,14 @@ import com.api_stock.stock.app.category.mapper.ICategoryResponseMapper;
 import com.api_stock.stock.domain.category.api.ICategoryServicePort;
 import com.api_stock.stock.domain.category.model.Category;
 import com.api_stock.stock.domain.page.PageData;
+import com.api_stock.stock.domain.util.GlobalConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import static com.api_stock.stock.utils.TestConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -30,15 +32,20 @@ class CategoryHandlerTest {
     @InjectMocks
     private CategoryHandler categoryHandler;
 
+    private Category category;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        category = new Category(VALID_CATEGORY_ID, VALID_CATEGORY_NAME, VALID_CATEGORY_DESCRIPTION);
     }
 
     @Test
     void shouldCallCreateCategoryOnCategoryCreateService() {
-        CategoryRequest categoryRequest = new CategoryRequest("Electronics", "Devices and gadgets");
-        Category category = new Category(1L, "Electronics", "Devices and gadgets");
+        CategoryRequest categoryRequest = new CategoryRequest();
+        categoryRequest.setName(VALID_CATEGORY_NAME);
+        categoryRequest.setDescription(VALID_CATEGORY_DESCRIPTION);
 
         when(categoryRequestMapper.toCategory(categoryRequest)).thenReturn(category);
 
@@ -49,9 +56,9 @@ class CategoryHandlerTest {
 
     @Test
     void shouldReturnCategoryPageWhenParametersAreValid() {
-        Integer page = 0;
-        Integer size = 10;
-        String sortDirection = "ASC";
+        int page = GlobalConstants.MIN_PAGE_NUMBER;
+        int size = Integer.parseInt(GlobalConstants.DEFAULT_PAGE_SIZE);
+        String sortDirection = GlobalConstants.ASC;
 
         PageData<Category> mockCategoryPage = mock(PageData.class);
         PageData<CategoryResponse> mockResponsePage = mock(PageData.class);

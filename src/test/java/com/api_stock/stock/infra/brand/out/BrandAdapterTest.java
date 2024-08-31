@@ -2,6 +2,7 @@ package com.api_stock.stock.infra.brand.out;
 
 import com.api_stock.stock.domain.brand.model.Brand;
 import com.api_stock.stock.domain.page.PageData;
+import com.api_stock.stock.domain.util.GlobalConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.*;
 import java.util.List;
 import java.util.Optional;
 
+import static com.api_stock.stock.utils.TestConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -28,17 +30,20 @@ class BrandAdapterTest {
     @InjectMocks
     private BrandAdapter brandAdapter;
 
+    private Brand brand;
+    private BrandEntity brandEntity;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        brand = new Brand(VALID_BRAND_ID, VALID_BRAND_NAME, VALID_BRAND_DESCRIPTION);
+        brandEntity = new BrandEntity(VALID_BRAND_ID, VALID_BRAND_NAME, VALID_BRAND_DESCRIPTION);
     }
 
     @Test
     void shouldCreateBrandSuccessfully() {
-        Brand brand = new Brand(1L, "Nike", "High quality clothing");
-        BrandEntity brandEntity = new BrandEntity();
-
-        when(brandRepository.findByName("Nike")).thenReturn(Optional.empty());
+        when(brandRepository.findByName(VALID_BRAND_NAME)).thenReturn(Optional.empty());
         when(brandMapper.toEntity(brand)).thenReturn(brandEntity);
 
         brandAdapter.createBrand(brand);
@@ -49,19 +54,14 @@ class BrandAdapterTest {
     @Test
     void shouldReturnBrandsPage() {
         //Arrange
-        Integer page = 0;
-        Integer size = 10;
-        String orderDirection = "ASC";
-
-        List<BrandEntity> entities = List.of(
-                new BrandEntity(1L, "name","desc"),
-                new BrandEntity(2L, "name1", "desc"));
+        int page = GlobalConstants.MIN_PAGE_NUMBER;
+        int size = GlobalConstants.MIN_PAGE_SIZE;
+        String orderDirection = GlobalConstants.ASC;
+        List<BrandEntity> entities = List.of(brandEntity ,brandEntity);
         Page<BrandEntity> pageResult = new PageImpl<>(entities, PageRequest.of(page, size), entities.size());
         when(brandRepository.findAll(any(Pageable.class))).thenReturn(pageResult);
 
-        List<Brand> brands = List.of(
-                new Brand(1L, "name","desc"),
-                new Brand(2L, "name1", "desc"));
+        List<Brand> brands = List.of(brand, brand);
 
         when(brandMapper.toBrandsList(entities)).thenReturn(brands);
 
@@ -73,8 +73,8 @@ class BrandAdapterTest {
         assertEquals(page, result.getPageNumber());
         assertEquals(entities.size(), result.getTotalElements());
         assertTrue(result.isFirst());
-        assertTrue(result.isLast());
-        assertFalse(result.isHasNext());
+        assertFalse(result.isLast());
+        assertTrue(result.isHasNext());
         assertFalse(result.isHasPrevious());
 
         verify(brandRepository).findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name")));
@@ -83,45 +83,38 @@ class BrandAdapterTest {
 
     @Test
     void testIsBrandPresentByNameWhenNameExists() {
-        String name = "ExistingName";
-        when(brandRepository.findByName(name)).thenReturn(Optional.of(new BrandEntity(1L, name, "Description")));
+        when(brandRepository.findByName(VALID_BRAND_NAME)).thenReturn(Optional.of(brandEntity));
 
-        Boolean result = brandAdapter.isBrandPresentByName(name);
+        Boolean result = brandAdapter.isBrandPresentByName(VALID_BRAND_NAME);
 
         assertTrue(result);
     }
 
     @Test
     void testIsBrandPresentByNameWhenNameDoesNotExist() {
-        String name = "NonExistingName";
-        when(brandRepository.findByName(name)).thenReturn(Optional.empty());
+        when(brandRepository.findByName(VALID_BRAND_NAME)).thenReturn(Optional.empty());
 
-        Boolean result = brandAdapter.isBrandPresentByName(name);
+        Boolean result = brandAdapter.isBrandPresentByName(VALID_BRAND_NAME);
 
         assertFalse(result);
     }
 
     @Test
-    void getBrandById_ShouldReturnBrand_WhenBrandExists() {
-        Long brandId = 1L;
-        Brand expectedBrand = new Brand(brandId, "Nike", "High quality clothing");
-        BrandEntity brandEntity = new BrandEntity(brandId, "Nike", "High quality clothing");
+    void getBrandByIdShouldReturnBrandWhenBrandExists() {
+        when(brandRepository.findById(VALID_BRAND_ID)).thenReturn(Optional.of(brandEntity));
+        when(brandMapper.toBrand(brandEntity)).thenReturn(brand);
 
-        when(brandRepository.findById(brandId)).thenReturn(Optional.of(brandEntity));
-        when(brandMapper.toBrand(brandEntity)).thenReturn(expectedBrand);
-
-        Optional<Brand> actualBrand = brandAdapter.getBrandById(brandId);
+        Optional<Brand> actualBrand = brandAdapter.getBrandById(VALID_BRAND_ID);
 
         assertTrue(actualBrand.isPresent());
-        assertEquals(expectedBrand, actualBrand.get());
+        assertEquals(brand, actualBrand.get());
     }
 
     @Test
-    void getBrandById_ShouldReturnEmpty_WhenBrandDoesNotExist() {
-        Long brandId = 1L;
-        when(brandRepository.findById(brandId)).thenReturn(Optional.empty());
+    void getBrandByIdShouldReturnEmptyWhenBrandDoesNotExist() {
+        when(brandRepository.findById(VALID_BRAND_ID)).thenReturn(Optional.empty());
 
-        Optional<Brand> actualBrand = brandAdapter.getBrandById(brandId);
+        Optional<Brand> actualBrand = brandAdapter.getBrandById(VALID_BRAND_ID);
 
         assertTrue(actualBrand.isEmpty());
     }
