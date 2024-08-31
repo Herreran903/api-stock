@@ -1,5 +1,6 @@
 package com.api_stock.stock.infra.brand.out;
 
+import com.api_stock.stock.domain.brand.util.BrandConstants;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,10 +15,10 @@ public class BrandEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(nullable = false, unique = true, length = BrandConstants.MAX_NAME_LENGTH)
     private String name;
 
-    @Column(nullable = false, length = 120)
+    @Column(nullable = false, length = BrandConstants.MAX_DESCRIPTION_LENGTH)
     private String description;
 
 }

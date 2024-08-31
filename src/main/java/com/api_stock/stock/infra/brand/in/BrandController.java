@@ -3,9 +3,9 @@ package com.api_stock.stock.infra.brand.in;
 import com.api_stock.stock.app.brand.dto.BrandRequest;
 import com.api_stock.stock.app.brand.dto.BrandResponse;
 import com.api_stock.stock.app.brand.handler.IBrandHandler;
-import com.api_stock.stock.domain.brand.exception.BrandExceptionMessage;
 import com.api_stock.stock.domain.page.PageData;
 import com.api_stock.stock.domain.util.GlobalConstants;
+import com.api_stock.stock.domain.util.GlobalExceptionMessage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -62,13 +62,13 @@ public class BrandController {
     )
     @GetMapping("/")
     ResponseEntity<PageData<BrandResponse>> getBrandsByPage(
-            @Min(value = GlobalConstants.MIN_PAGE_NUMBER, message = BrandExceptionMessage.NO_NEGATIVE_PAGE)
+            @Min(value = GlobalConstants.MIN_PAGE_NUMBER, message = GlobalExceptionMessage.NO_NEGATIVE_PAGE)
             @RequestParam(defaultValue = GlobalConstants.DEFAULT_PAGE_NUMBER)
             int page,
-            @Min(value = GlobalConstants.MIN_PAGE_SIZE, message = BrandExceptionMessage.GREATER_ZERO_SIZE)
+            @Min(value = GlobalConstants.MIN_PAGE_SIZE, message = GlobalExceptionMessage.GREATER_ZERO_SIZE)
             @RequestParam(defaultValue = GlobalConstants.DEFAULT_PAGE_SIZE)
             int size,
-            @Pattern(regexp = GlobalConstants.ORDER_REGEX, message = BrandExceptionMessage.INVALID_SORT_DIRECTION)
+            @Pattern(regexp = GlobalConstants.ORDER_REGEX, message = GlobalExceptionMessage.INVALID_SORT_DIRECTION)
             @RequestParam(defaultValue = GlobalConstants.ASC)
             String sortDirection) {
         PageData<BrandResponse> brands = brandHandler.getBrandsByPage(page, size, sortDirection);

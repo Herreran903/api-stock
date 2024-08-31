@@ -35,5 +35,8 @@ public final class ProductExceptionMessage {
 
     public static final String UNIQUE_CATEGORIES_IDS =
             "The 'categoryIds' field contains duplicate category IDs";
+
+    public static final String INVALID_PROPERTY_DIRECTION =
+            "Sort direction must be 'name' or 'brand' or 'category'";
 }
 

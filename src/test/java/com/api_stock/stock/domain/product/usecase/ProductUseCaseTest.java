@@ -2,13 +2,20 @@ package com.api_stock.stock.domain.product.usecase;
 
 import com.api_stock.stock.domain.brand.model.Brand;
 import com.api_stock.stock.domain.category.model.Category;
+import com.api_stock.stock.domain.page.PageData;
 import com.api_stock.stock.domain.product.exception.ProductExceptionMessage;
 import com.api_stock.stock.domain.product.exception.ex.ProductNotValidFieldException;
+import com.api_stock.stock.domain.product.exception.ex.ProductNotValidParameterException;
 import com.api_stock.stock.domain.product.model.Product;
 import com.api_stock.stock.domain.product.spi.IProductPersistencePort;
+import com.api_stock.stock.domain.product.util.ProductConstants;
+import com.api_stock.stock.domain.util.GlobalConstants;
+import com.api_stock.stock.domain.util.GlobalExceptionMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -16,10 +23,11 @@ import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Stream;
 
+import static com.api_stock.stock.utils.TestConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 class ProductUseCaseTest {
 
@@ -29,57 +37,67 @@ class ProductUseCaseTest {
     @InjectMocks
     private ProductUseCase productUseCase;
 
+    private Category category;
+    private Product product;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        category = new Category(VALID_CATEGORY_ID, VALID_CATEGORY_NAME, VALID_CATEGORY_DESCRIPTION);
+        List<Category> categories = List.of(category);
+        Brand brand = new Brand(VALID_BRAND_ID, VALID_BRAND_NAME, VALID_BRAND_DESCRIPTION);
+        product = new Product(
+                VALID_PRODUCT_ID,
+                VALID_PRODUCT_NAME,
+                VALID_PRODUCT_DESCRIPTION,
+                VALID_PRODUCT_PRICE,
+                VALID_PRODUCT_STOCK,
+                brand,
+                categories);
     }
 
     @Test
     void shouldThrowExceptionWhenCategoriesAreNotUnique() {
-        List<Category> categories = List.of(
-                new Category(1L, "Category1", "Description1"),
-                new Category(1L, "Category1", "Description1"));
-        Brand brand = new Brand(1L, "Brand1", "Description1");
-        Product product = new Product(1L, "Product1", "", BigDecimal.TEN, 5, brand, categories);
-        ProductNotValidFieldException productNotValidFieldException = assertThrows(
+        List<Category> categories = List.of(category, category);
+        product.setCategories(categories);
+
+        ProductNotValidFieldException exception = assertThrows(
                 ProductNotValidFieldException.class, () -> productUseCase.createProduct(product)
         );
 
-        assertEquals(ProductExceptionMessage.UNIQUE_CATEGORIES_IDS, productNotValidFieldException.getMessage());
+        assertEquals(ProductExceptionMessage.UNIQUE_CATEGORIES_IDS, exception.getMessage());
     }
 
     @Test
     void shouldThrowExceptionWhenCategoriesSizeIsInvalid() {
         List<Category> categories = List.of();
-        Brand brand = new Brand(1L, "Brand1", "Description1");
-        Product product = new Product(1L, "Product1", "", BigDecimal.TEN, 5, brand, categories);
+        product.setCategories(categories);
 
-        ProductNotValidFieldException productNotValidFieldException = assertThrows(
+        ProductNotValidFieldException exception = assertThrows(
                 ProductNotValidFieldException.class, () -> productUseCase.createProduct(product)
         );
-        assertEquals(ProductExceptionMessage.SIZE_CATEGORIES_ID, productNotValidFieldException.getMessage());
+        assertEquals(ProductExceptionMessage.SIZE_CATEGORIES_ID, exception.getMessage());
     }
 
     @Test
     void shouldThrowExceptionWhenCategoriesSizeIsNull() {
-        Brand brand = new Brand(1L, "Brand1", "Description1");
-        Product product = new Product(1L, "Product1", "", BigDecimal.TEN, 5, brand, null);
+        product.setCategories(null);
 
-        ProductNotValidFieldException productNotValidFieldException = assertThrows(
+        ProductNotValidFieldException exception = assertThrows(
                 ProductNotValidFieldException.class, () -> productUseCase.createProduct(product)
         );
-        assertEquals(ProductExceptionMessage.EMPTY_CATEGORIES_IDS, productNotValidFieldException.getMessage());
+        assertEquals(ProductExceptionMessage.EMPTY_CATEGORIES_IDS, exception.getMessage());
     }
 
     @Test
     void shouldThrowExceptionWhenBrandIsNull() {
-        List<Category> categories = List.of(new Category(1L, "Category1", "Description1"));
-        Product product = new Product(1L, "Product1", "", BigDecimal.TEN, 5, null, categories);
+        product.setBrand(null);
 
-        ProductNotValidFieldException productNotValidFieldException = assertThrows(
+        ProductNotValidFieldException exception = assertThrows(
                 ProductNotValidFieldException.class, () -> productUseCase.createProduct(product)
         );
-        assertEquals(ProductExceptionMessage.EMPTY_BRAND_ID, productNotValidFieldException.getMessage());
+        assertEquals(ProductExceptionMessage.EMPTY_BRAND_ID, exception.getMessage());
     }
 
     @ParameterizedTest
@@ -87,14 +105,12 @@ class ProductUseCaseTest {
     void shouldThrowExceptionWhenProductNameIsEmpty(String name) {
         String testName = name.equals("null") ? null : name;
 
-        List<Category> categories = List.of(new Category(1L, "Category1", "Description1"));
-        Brand brand = new Brand(1L, "Brand1", "Description1");
-        Product product = new Product(1L, testName, "", BigDecimal.TEN, 5, brand, categories);
+        product.setName(testName);
 
-        ProductNotValidFieldException productNotValidFieldException = assertThrows(
+        ProductNotValidFieldException exception = assertThrows(
                 ProductNotValidFieldException.class, () -> productUseCase.createProduct(product)
         );
-        assertEquals(ProductExceptionMessage.EMPTY_NAME, productNotValidFieldException.getMessage());
+        assertEquals(ProductExceptionMessage.EMPTY_NAME, exception.getMessage());
     }
 
     @ParameterizedTest
@@ -105,14 +121,12 @@ class ProductUseCaseTest {
                 ? ProductExceptionMessage.EMPTY_STOCK
                 : ProductExceptionMessage.NEGATIVE_STOCK;
 
-        List<Category> categories = List.of(new Category(1L, "Category1", "Description1"));
-        Brand brand = new Brand(1L, "Brand1", "Description1");
-        Product product = new Product(1L, "Product1", "", BigDecimal.TEN, testStock, brand, categories);
+        product.setStock(testStock);
 
-        ProductNotValidFieldException productNotValidFieldException = assertThrows(
+        ProductNotValidFieldException exception = assertThrows(
                 ProductNotValidFieldException.class, () -> productUseCase.createProduct(product)
         );
-        assertEquals(exceptionMessage, productNotValidFieldException.getMessage());
+        assertEquals(exceptionMessage, exception.getMessage());
     }
 
     @ParameterizedTest
@@ -123,26 +137,129 @@ class ProductUseCaseTest {
                 ? ProductExceptionMessage.EMPTY_PRICE
                 : ProductExceptionMessage.NEGATIVE_PRICE;
 
-        List<Category> categories = List.of(new Category(1L, "Category1", "Description1"));
-        Brand brand = new Brand(1L, "Brand1", "Description1");
-        Product product = new Product(1L, "Product1", "", testPrice, 5, brand, categories);
+        product.setPrice(testPrice);
 
-        ProductNotValidFieldException productNotValidFieldException = assertThrows(
+        ProductNotValidFieldException exception = assertThrows(
                 ProductNotValidFieldException.class, () -> productUseCase.createProduct(product)
         );
 
-        assertEquals(exceptionMessage, productNotValidFieldException.getMessage());
+        assertEquals(exceptionMessage, exception.getMessage());
     }
 
     @Test
     void shouldCreateProductSuccessfully() {
-        List<Category> categories = List.of(new Category(1L, "Category1", "Description1"));
-        Brand brand = new Brand(1L, "Brand1", "Description1");
-        Product product = new Product(1L, "Product1", "", BigDecimal.TEN, 5, brand, categories);
-
         productUseCase.createProduct(product);
 
         verify(productPersistencePort, times(1)).createProduct(product);
     }
 
+    @Test
+    void shouldThrowExceptionWhenSortDirectionIsInvalid() {
+        String invalidSortDirection = "INVALID";
+
+        assertThrows(
+                ProductNotValidParameterException.class,
+                () -> productUseCase.getCategoriesByPage(
+                        GlobalConstants.MIN_PAGE_NUMBER,
+                        GlobalConstants.MIN_PAGE_SIZE,
+                        invalidSortDirection,
+                        ProductConstants.NAME),
+                GlobalExceptionMessage.INVALID_SORT_DIRECTION
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenSortPropertyIsInvalid() {
+        String invalidSortProperty = "INVALID";
+
+        assertThrows(
+                ProductNotValidParameterException.class,
+                () -> productUseCase.getCategoriesByPage(
+                        GlobalConstants.MIN_PAGE_NUMBER,
+                        GlobalConstants.MIN_PAGE_SIZE,
+                        GlobalConstants.ASC,
+                        invalidSortProperty),
+                GlobalExceptionMessage.INVALID_SORT_DIRECTION
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenPageIsNegative() {
+        assertThrows(
+                ProductNotValidParameterException.class,
+                () -> productUseCase.getCategoriesByPage(
+                        -1,
+                        GlobalConstants.MIN_PAGE_SIZE,
+                        GlobalConstants.ASC,
+                        ProductConstants.NAME),
+                GlobalExceptionMessage.NO_NEGATIVE_PAGE
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenSizeIsZeroOrNegative() {
+        assertThrows(
+                ProductNotValidParameterException.class,
+                () -> productUseCase.getCategoriesByPage(
+                        GlobalConstants.MIN_PAGE_NUMBER,
+                        0,
+                        GlobalConstants.ASC,
+                        ProductConstants.NAME),
+                GlobalExceptionMessage.GREATER_ZERO_SIZE
+        );
+
+        assertThrows(
+                ProductNotValidParameterException.class,
+                () -> productUseCase.getCategoriesByPage(
+                        GlobalConstants.MIN_PAGE_NUMBER,
+                        -1,
+                        GlobalConstants.ASC,
+                        ProductConstants.NAME),
+                GlobalExceptionMessage.GREATER_ZERO_SIZE
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("sortDirectionAndPropertyProvider")
+    void shouldReturnCategoriesPage(String sortDirection, String sortProperty) {
+        PageData<Product> expectedCategoryPage = new PageData<>(
+                List.of(product),
+                GlobalConstants.MIN_PAGE_NUMBER,
+                1,
+                true,
+                true,
+                false,
+                false
+        );
+
+        when(productPersistencePort.getCategoriesByPage(
+                GlobalConstants.MIN_PAGE_NUMBER,
+                GlobalConstants.MIN_PAGE_SIZE,
+                sortDirection,
+                sortProperty)).thenReturn(expectedCategoryPage);
+
+        PageData<Product> result = productUseCase.getCategoriesByPage(
+                GlobalConstants.MIN_PAGE_NUMBER,
+                GlobalConstants.MIN_PAGE_SIZE,
+                sortDirection,
+                sortProperty);
+
+        assertEquals(expectedCategoryPage, result);
+        verify(productPersistencePort, times(1)).getCategoriesByPage(
+                GlobalConstants.MIN_PAGE_NUMBER,
+                GlobalConstants.MIN_PAGE_SIZE,
+                sortDirection,
+                sortProperty);
+    }
+
+    private static Stream<Arguments> sortDirectionAndPropertyProvider() {
+        return Stream.of(
+                Arguments.of(GlobalConstants.ASC, ProductConstants.NAME),
+                Arguments.of(GlobalConstants.ASC, ProductConstants.BRAND),
+                Arguments.of(GlobalConstants.ASC, ProductConstants.CATEGORIES),
+                Arguments.of(GlobalConstants.DESC, ProductConstants.NAME),
+                Arguments.of(GlobalConstants.DESC, ProductConstants.BRAND),
+                Arguments.of(GlobalConstants.DESC, ProductConstants.CATEGORIES)
+        );
+    }
 }

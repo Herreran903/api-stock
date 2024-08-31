@@ -4,6 +4,7 @@ import com.api_stock.stock.app.brand.dto.BrandRequest;
 import com.api_stock.stock.app.brand.handler.IBrandHandler;
 import com.api_stock.stock.domain.brand.exception.BrandExceptionMessage;
 import com.api_stock.stock.domain.brand.exception.ex.BrandAlreadyExistException;
+import com.api_stock.stock.domain.util.GlobalConstants;
 import com.api_stock.stock.domain.util.GlobalExceptionMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -153,11 +154,11 @@ class BrandControllerTest {
     @Test
     void shouldReturnBadRequestIfSortDirectionIsInvalid() throws Exception {
         String expectedMessage = GlobalExceptionMessage.INVALID_PARAMETERS;
-        String expectedErrorMessage = BrandExceptionMessage.INVALID_SORT_DIRECTION;
+        String expectedErrorMessage = GlobalExceptionMessage.INVALID_SORT_DIRECTION;
 
         mvc.perform(get("/brands/")
-                        .param("page", "0")
-                        .param("size", "10")
+                        .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
+                        .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
                         .param("sortDirection", "INVALID"))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -169,29 +170,28 @@ class BrandControllerTest {
     @Test
     void shouldReturnBadRequestIfPageIsNegative() throws Exception {
         String expectedMessage = GlobalExceptionMessage.INVALID_PARAMETERS;
-        String expectedErrorMessage = BrandExceptionMessage.NO_NEGATIVE_PAGE;
+        String expectedErrorMessage = GlobalExceptionMessage.NO_NEGATIVE_PAGE;
 
         mvc.perform(get("/brands/")
                         .param("page", "-1")
-                        .param("size", "10")
-                        .param("sortDirection", "ASC"))
+                        .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
+                        .param("sortDirection", GlobalConstants.ASC))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(expectedMessage))
                 .andExpect(jsonPath("$.errors[0].field").value("page"))
                 .andExpect(jsonPath("$.errors[0].message").value(expectedErrorMessage));
-
     }
 
     @Test
     void shouldReturnBadRequestIfSizeIsZeroOrNegative() throws Exception {
         String expectedMessage = GlobalExceptionMessage.INVALID_PARAMETERS;
-        String expectedErrorMessage = BrandExceptionMessage.GREATER_ZERO_SIZE;
+        String expectedErrorMessage = GlobalExceptionMessage.GREATER_ZERO_SIZE;
 
         mvc.perform(get("/brands/")
-                        .param("page", "0")
+                        .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
                         .param("size", "0")
-                        .param("sortDirection", "ASC"))
+                        .param("sortDirection", GlobalConstants.ASC))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(expectedMessage))
@@ -202,12 +202,16 @@ class BrandControllerTest {
     @Test
     void shouldReturnOkWhenParametersAreValid() throws Exception {
         mvc.perform(get("/brands/")
-                        .param("page", "0")
-                        .param("size", "10")
-                        .param("sortDirection", "ASC"))
+                        .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
+                        .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
+                        .param("sortDirection", GlobalConstants.ASC))
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        verify(brandHandler, times(1)).getBrandsByPage(0, 10, "ASC");
+        verify(brandHandler, times(1)).getBrandsByPage(
+                GlobalConstants.MIN_PAGE_NUMBER,
+                GlobalConstants.MIN_PAGE_SIZE,
+                GlobalConstants.ASC);
     }
+
 }

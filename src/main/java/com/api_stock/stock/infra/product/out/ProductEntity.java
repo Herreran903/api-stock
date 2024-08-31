@@ -1,12 +1,16 @@
 package com.api_stock.stock.infra.product.out;
 
+import com.api_stock.stock.domain.product.exception.ProductExceptionMessage;
+import com.api_stock.stock.domain.product.util.ProductConstants;
 import com.api_stock.stock.infra.brand.out.BrandEntity;
 import com.api_stock.stock.infra.category.out.CategoryEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "product")
@@ -25,8 +29,10 @@ public class ProductEntity {
     private String description;
 
     @Column(nullable = false)
+    @Positive(message = ProductExceptionMessage.NEGATIVE_PRICE)
     private BigDecimal price;
 
+    @Positive(message = ProductExceptionMessage.NEGATIVE_STOCK)
     private int stock;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,7 +43,11 @@ public class ProductEntity {
     @JoinTable(
             name = "product_categories",
             joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id")
+            inverseJoinColumns = @JoinColumn(name = "category_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"product_id", "category_id"})
     )
-    private List<CategoryEntity> categories;
+    @Size(min = ProductConstants.MIN_CATEGORIES_IDS,
+            max = ProductConstants.MAX_CATEGORIES_IDS,
+            message = ProductExceptionMessage.SIZE_CATEGORIES_ID)
+    private Set<CategoryEntity> categories;
 }

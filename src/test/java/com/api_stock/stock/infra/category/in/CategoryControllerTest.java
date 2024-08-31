@@ -4,7 +4,7 @@ import com.api_stock.stock.app.category.dto.CategoryRequest;
 import com.api_stock.stock.app.category.handler.ICategoryHandler;
 import com.api_stock.stock.domain.category.exception.CategoryExceptionMessage;
 import com.api_stock.stock.domain.category.exception.ex.CategoryAlreadyExistException;
-import com.api_stock.stock.domain.category.exception.ex.CategoryNotValidParameterException;
+import com.api_stock.stock.domain.util.GlobalConstants;
 import com.api_stock.stock.domain.util.GlobalExceptionMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -152,14 +152,11 @@ class CategoryControllerTest {
     @Test
     void shouldReturnBadRequestIfSortDirectionIsInvalid() throws Exception {
         String expectedMessage = GlobalExceptionMessage.INVALID_PARAMETERS;
-        String expectedErrorMessage = CategoryExceptionMessage.INVALID_SORT_DIRECTION;
-
-        when(categoryHandler.getCategoriesByPage(0,10,"INVALID")).
-                thenThrow(new CategoryNotValidParameterException(expectedMessage));
+        String expectedErrorMessage = GlobalExceptionMessage.INVALID_SORT_DIRECTION;
 
         mvc.perform(get("/categories/")
-                        .param("page", "0")
-                        .param("size", "10")
+                        .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
+                        .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
                         .param("sortDirection", "INVALID"))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -171,15 +168,12 @@ class CategoryControllerTest {
     @Test
     void shouldReturnBadRequestIfPageIsNegative() throws Exception {
         String expectedMessage = GlobalExceptionMessage.INVALID_PARAMETERS;
-        String expectedErrorMessage = CategoryExceptionMessage.NO_NEGATIVE_PAGE;
-
-        when(categoryHandler.getCategoriesByPage(-1,10,"ASC")).
-                thenThrow(new CategoryNotValidParameterException(expectedMessage));
+        String expectedErrorMessage = GlobalExceptionMessage.NO_NEGATIVE_PAGE;
 
         mvc.perform(get("/categories/")
                         .param("page", "-1")
-                        .param("size", "10")
-                        .param("sortDirection", "ASC"))
+                        .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
+                        .param("sortDirection", GlobalConstants.ASC))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(expectedMessage))
@@ -191,15 +185,12 @@ class CategoryControllerTest {
     @Test
     void shouldReturnBadRequestIfSizeIsZeroOrNegative() throws Exception {
         String expectedMessage = GlobalExceptionMessage.INVALID_PARAMETERS;
-        String expectedErrorMessage = CategoryExceptionMessage.GREATER_ZERO_SIZE;
-
-        when(categoryHandler.getCategoriesByPage(0,0,"ASC")).
-                thenThrow(new CategoryNotValidParameterException(expectedMessage));
+        String expectedErrorMessage = GlobalExceptionMessage.GREATER_ZERO_SIZE;
 
         mvc.perform(get("/categories/")
-                        .param("page", "0")
+                        .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
                         .param("size", "0")
-                        .param("sortDirection", "ASC"))
+                        .param("sortDirection", GlobalConstants.ASC))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(expectedMessage))
@@ -210,12 +201,15 @@ class CategoryControllerTest {
     @Test
     void shouldReturnOkWhenParametersAreValid() throws Exception {
         mvc.perform(get("/categories/")
-                        .param("page", "0")
-                        .param("size", "10")
-                        .param("sortDirection", "ASC"))
+                        .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
+                        .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
+                        .param("sortDirection", GlobalConstants.ASC))
                 .andDo(print())
                 .andExpect(status().isOk());
 
-        verify(categoryHandler, times(1)).getCategoriesByPage(0, 10, "ASC");
+        verify(categoryHandler, times(1)).getCategoriesByPage(
+                GlobalConstants.MIN_PAGE_NUMBER,
+                GlobalConstants.MIN_PAGE_SIZE,
+                GlobalConstants.ASC);
     }
 }

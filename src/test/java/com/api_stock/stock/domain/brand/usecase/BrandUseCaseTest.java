@@ -8,6 +8,8 @@ import com.api_stock.stock.domain.brand.exception.ex.BrandNotValidParameterExcep
 import com.api_stock.stock.domain.brand.model.Brand;
 import com.api_stock.stock.domain.brand.spi.IBrandPersistencePort;
 import com.api_stock.stock.domain.page.PageData;
+import com.api_stock.stock.domain.util.GlobalConstants;
+import com.api_stock.stock.domain.util.GlobalExceptionMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,6 +21,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.List;
 import java.util.Optional;
 
+import static com.api_stock.stock.utils.TestConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
@@ -31,17 +34,20 @@ class BrandUseCaseTest {
     @InjectMocks
     private BrandUseCase brandUseCase;
 
+    private Brand brand;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        brand = new Brand(VALID_BRAND_ID, VALID_BRAND_NAME, VALID_BRAND_DESCRIPTION);
     }
 
     @Test
     void shouldThrowExceptionWhenNameExceedsMaxLength() {
-        Brand brand = new Brand(
-                1L,
-                "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean m",
-                "High quality clothing");
+        brand.setName(
+                "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean m"
+        );
 
 
         BrandNotValidFieldException exception = assertThrows(
@@ -53,13 +59,12 @@ class BrandUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenDescriptionExceedsMaxLength() {
-        Brand brand = new Brand(
-                1L,
-                "Nike",
+        brand.setDescription(
                 "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. " +
                         "Aenean commodo ligula eget dolor. Aenean massa. " +
                         "Cum sociis natoque penatibus et magnis dis parturient montes, " +
-                        "nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu");
+                        "nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu"
+        );
 
         BrandNotValidFieldException exception = assertThrows(
                 BrandNotValidFieldException.class, () -> brandUseCase.createBrand(brand)
@@ -70,7 +75,7 @@ class BrandUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenNameIsNull() {
-        Brand brand = new Brand(1L, null, "High quality clothing");
+        brand.setName(null);
 
         BrandNotValidFieldException exception = assertThrows(
                 BrandNotValidFieldException.class, () -> brandUseCase.createBrand(brand)
@@ -81,7 +86,7 @@ class BrandUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenNameIsEmpty() {
-        Brand brand = new Brand(1L, "", "High quality clothing");
+        brand.setName("");
 
         BrandNotValidFieldException exception = assertThrows(
                 BrandNotValidFieldException.class, () -> brandUseCase.createBrand(brand)
@@ -92,7 +97,7 @@ class BrandUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenDescriptionIsNull() {
-        Brand brand = new Brand(1L, "Nike", null);
+        brand.setDescription(null);
 
         BrandNotValidFieldException exception = assertThrows(
                 BrandNotValidFieldException.class, () -> brandUseCase.createBrand(brand)
@@ -103,7 +108,7 @@ class BrandUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenDescriptionIsEmpty() {
-        Brand brand = new Brand(1L, "Nike", "");
+        brand.setDescription("");
 
         BrandNotValidFieldException exception = assertThrows(
                 BrandNotValidFieldException.class, () -> brandUseCase.createBrand(brand)
@@ -114,22 +119,18 @@ class BrandUseCaseTest {
 
     @Test
     void shouldThrowExceptionWhenBrandAlreadyExists() {
-        Brand brand = new Brand(1L, "ExistingBrand", "High quality clothing");
-
-        when(brandPersistencePort.isBrandPresentByName("ExistingBrand")).thenReturn(true);
+        when(brandPersistencePort.isBrandPresentByName(VALID_BRAND_NAME)).thenReturn(true);
 
         BrandAlreadyExistException exception = assertThrows(
                 BrandAlreadyExistException.class, () -> brandUseCase.createBrand(brand)
         );
 
-        verify(brandPersistencePort, times(1)).isBrandPresentByName("ExistingBrand");
+        verify(brandPersistencePort, times(1)).isBrandPresentByName(VALID_BRAND_NAME);
         assertEquals(BrandExceptionMessage.ALREADY_EXIST_BRAND, exception.getMessage());
     }
 
     @Test
     void shouldCreateBrandSuccessfully() {
-        Brand brand = new Brand(1L, "Nike", "High quality clothing");
-
         assertDoesNotThrow(() -> brandUseCase.createBrand(brand));
 
         verify(brandPersistencePort).createBrand(brand);
@@ -137,30 +138,31 @@ class BrandUseCaseTest {
 
     @Test
     void getBrandById_ShouldReturnBrand_WhenBrandExists() {
-        Long brandId = 1L;
-        Brand expectedBrand = new Brand(brandId, "Nike", "High quality clothing");
-        when(brandPersistencePort.getBrandById(brandId)).thenReturn(Optional.of(expectedBrand));
+        when(brandPersistencePort.getBrandById(VALID_BRAND_ID)).thenReturn(Optional.of(brand));
 
-        Brand actualBrand = brandUseCase.getBrandById(brandId);
+        Brand actualBrand = brandUseCase.getBrandById(VALID_BRAND_ID);
 
-        assertEquals(expectedBrand, actualBrand);
+        assertEquals(brand, actualBrand);
     }
 
     @Test
     void getBrandByIdShouldThrowBrandNotFoundByIdExceptionWhenBrandDoesNotExist() {
+        when(brandPersistencePort.getBrandById(VALID_BRAND_ID)).thenReturn(Optional.empty());
 
-        Long brandId = 1L;
-        when(brandPersistencePort.getBrandById(brandId)).thenReturn(Optional.empty());
-
-        assertThrows(BrandNotFoundByIdException.class, () -> brandUseCase.getBrandById(brandId));
+        assertThrows(BrandNotFoundByIdException.class, () -> brandUseCase.getBrandById(VALID_BRAND_ID));
     }
 
     @Test
     void shouldThrowExceptionWhenSortDirectionIsInvalid() {
+        String invalidSortDirection = "INVALID";
+
         assertThrows(
                 BrandNotValidParameterException.class,
-                () -> brandUseCase.getBrandsByPage(0, 10, "INVALID"),
-                BrandExceptionMessage.INVALID_SORT_DIRECTION
+                () -> brandUseCase.getBrandsByPage(
+                        GlobalConstants.MIN_PAGE_NUMBER,
+                        GlobalConstants.MIN_PAGE_SIZE,
+                        invalidSortDirection),
+                GlobalExceptionMessage.INVALID_SORT_DIRECTION
         );
     }
 
@@ -168,8 +170,11 @@ class BrandUseCaseTest {
     void shouldThrowExceptionWhenPageIsNegative() {
         assertThrows(
                 BrandNotValidParameterException.class,
-                () -> brandUseCase.getBrandsByPage(-1, 10, "ASC"),
-                BrandExceptionMessage.NO_NEGATIVE_PAGE
+                () -> brandUseCase.getBrandsByPage(
+                        -1,
+                        GlobalConstants.MIN_PAGE_SIZE,
+                        GlobalConstants.ASC),
+                GlobalExceptionMessage.NO_NEGATIVE_PAGE
         );
     }
 
@@ -177,26 +182,29 @@ class BrandUseCaseTest {
     void shouldThrowExceptionWhenSizeIsZeroOrNegative() {
         assertThrows(
                 BrandNotValidParameterException.class,
-                () -> brandUseCase.getBrandsByPage(0, 0, "ASC"),
-                BrandExceptionMessage.GREATER_ZERO_SIZE
+                () -> brandUseCase.getBrandsByPage(
+                        GlobalConstants.MIN_PAGE_NUMBER,
+                        0,
+                        GlobalConstants.ASC),
+                GlobalExceptionMessage.GREATER_ZERO_SIZE
         );
 
         assertThrows(
                 BrandNotValidParameterException.class,
-                () -> brandUseCase.getBrandsByPage(0, -1, "ASC"),
-                BrandExceptionMessage.GREATER_ZERO_SIZE
+                () -> brandUseCase.getBrandsByPage(
+                        GlobalConstants.MIN_PAGE_NUMBER,
+                        -1,
+                        GlobalConstants.ASC),
+                GlobalExceptionMessage.GREATER_ZERO_SIZE
         );
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"ASC", "DESC"})
     void shouldReturnBrandsPage(String sortDirection) {
-        Integer page = 0;
-        Integer size = 10;
-
         PageData<Brand> expectedBrandPage = new PageData<>(
-                List.of(new Brand(1L, "Nike", "High quality clothing")),
-                page,
+                List.of(brand),
+                GlobalConstants.MIN_PAGE_NUMBER,
                 1,
                 true,
                 true,
@@ -204,11 +212,20 @@ class BrandUseCaseTest {
                 false
         );
 
-        when(brandPersistencePort.getBrandsByPage(page, size, sortDirection)).thenReturn(expectedBrandPage);
+        when(brandPersistencePort.getBrandsByPage(
+                GlobalConstants.MIN_PAGE_NUMBER,
+                GlobalConstants.MIN_PAGE_SIZE,
+                sortDirection)).thenReturn(expectedBrandPage);
 
-        PageData<Brand> result = brandUseCase.getBrandsByPage(page, size, sortDirection);
+        PageData<Brand> result = brandUseCase.getBrandsByPage(
+                GlobalConstants.MIN_PAGE_NUMBER,
+                GlobalConstants.MIN_PAGE_SIZE,
+                sortDirection);
 
         assertEquals(expectedBrandPage, result);
-        verify(brandPersistencePort, times(1)).getBrandsByPage(page, size, sortDirection);
+        verify(brandPersistencePort, times(1)).getBrandsByPage(
+                GlobalConstants.MIN_PAGE_NUMBER,
+                GlobalConstants.MIN_PAGE_SIZE,
+                sortDirection);
     }
 }

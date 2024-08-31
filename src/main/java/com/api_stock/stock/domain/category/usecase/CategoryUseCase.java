@@ -11,6 +11,7 @@ import com.api_stock.stock.domain.category.spi.ICategoryPersistencePort;
 import com.api_stock.stock.domain.category.util.CategoryConstants;
 import com.api_stock.stock.domain.page.PageData;
 import com.api_stock.stock.domain.util.GlobalConstants;
+import com.api_stock.stock.domain.util.GlobalExceptionMessage;
 
 import java.util.List;
 
@@ -67,13 +68,13 @@ public class CategoryUseCase implements ICategoryServicePort {
     public PageData<Category> getCategoriesByPage(int page, int size, String sortDirection) {
 
         if (!(GlobalConstants.ASC.equalsIgnoreCase(sortDirection) || GlobalConstants.DESC.equalsIgnoreCase(sortDirection)))
-            throw new CategoryNotValidParameterException(CategoryExceptionMessage.INVALID_SORT_DIRECTION);
+            throw new CategoryNotValidParameterException(GlobalExceptionMessage.INVALID_SORT_DIRECTION);
 
-        if (page < 0)
-            throw new CategoryNotValidParameterException(CategoryExceptionMessage.NO_NEGATIVE_PAGE);
+        if (page < GlobalConstants.MIN_PAGE_NUMBER)
+            throw new CategoryNotValidParameterException(GlobalExceptionMessage.NO_NEGATIVE_PAGE);
 
-        if (size <= 0)
-            throw new CategoryNotValidParameterException(CategoryExceptionMessage.GREATER_ZERO_SIZE);
+        if (size < GlobalConstants.MIN_PAGE_SIZE)
+            throw new CategoryNotValidParameterException(GlobalExceptionMessage.GREATER_ZERO_SIZE);
 
         return categoryPersistencePort.getCategoriesByPage(page, size, sortDirection);
     }
