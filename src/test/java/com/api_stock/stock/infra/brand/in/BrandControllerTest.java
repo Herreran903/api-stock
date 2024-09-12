@@ -6,10 +6,12 @@ import com.api_stock.stock.domain.brand.exception.BrandExceptionMessage;
 import com.api_stock.stock.domain.brand.exception.ex.BrandAlreadyExistException;
 import com.api_stock.stock.domain.util.GlobalConstants;
 import com.api_stock.stock.domain.util.GlobalExceptionMessage;
+import com.api_stock.stock.infra.security.jwt.JwtService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -24,6 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(BrandController.class)
+@AutoConfigureMockMvc(addFilters=false)
 class BrandControllerTest {
     
     @Autowired
@@ -31,6 +34,9 @@ class BrandControllerTest {
 
     @MockBean
     private IBrandHandler brandHandler;
+
+    @MockBean
+    private JwtService jwtService;
 
     @ParameterizedTest
     @ValueSource(strings = {"null", "", "missing"})
@@ -47,7 +53,7 @@ class BrandControllerTest {
             requestBody = "{\"name\":\"\",\"description\":\"High quality clothing\"}";
         }
 
-        mvc.perform(post("/brands/")
+        mvc.perform(post("/brand/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andDo(print())
@@ -72,7 +78,7 @@ class BrandControllerTest {
             requestBody = "{\"name\":\"Nike\",\"description\":\"" + description + "\"}";
         }
 
-        mvc.perform(post("/brands/")
+        mvc.perform(post("/brand/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andDo(print())
@@ -86,7 +92,7 @@ class BrandControllerTest {
     void shouldReturnBadRequestIfJsonNoValid() throws Exception {
         String expectedMessage = GlobalExceptionMessage.INVALID_JSON;
 
-        mvc.perform(post("/brands/")
+        mvc.perform(post("/brand/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":,}"))
                 .andDo(print())
@@ -99,7 +105,7 @@ class BrandControllerTest {
         String expectedMessage = GlobalExceptionMessage.INVALID_JSON;
         String expectedErrorMessage = String.format(GlobalExceptionMessage.INVALID_TYPE_PARAM, "description", "String");
 
-        mvc.perform(post("/brands/")
+        mvc.perform(post("/brand/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"Nike\", \"description\":[]}"))
                 .andDo(print())
@@ -115,7 +121,7 @@ class BrandControllerTest {
         String expectedMessage = GlobalExceptionMessage.INVALID_JSON;
         String expectedErrorMessage = String.format(GlobalExceptionMessage.INVALID_TYPE_PARAM, "name", "String");
 
-        mvc.perform(post("/brands/")
+        mvc.perform(post("/brand/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":[], \"description\":\"High quality clothing\"}"))
                 .andDo(print())
@@ -128,7 +134,7 @@ class BrandControllerTest {
 
     @Test
     void shouldReturnCreatedWhenBrandIsSuccessfullyCreated() throws Exception {
-        mvc.perform(post("/brands/")
+        mvc.perform(post("/brand/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"Nike\",\"description\":\"High quality clothing\"}"))
                 .andDo(print())
@@ -143,7 +149,7 @@ class BrandControllerTest {
 
         doThrow(new BrandAlreadyExistException(expectedMessage)).when(brandHandler).createBrand(any(BrandRequest.class));
 
-        mvc.perform(post("/brands/")
+        mvc.perform(post("/brand/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"Nike\",\"description\":\"High quality clothing\"}"))
                 .andDo(print())
@@ -156,7 +162,7 @@ class BrandControllerTest {
         String expectedMessage = GlobalExceptionMessage.INVALID_PARAMETERS;
         String expectedErrorMessage = GlobalExceptionMessage.INVALID_SORT_DIRECTION;
 
-        mvc.perform(get("/brands/")
+        mvc.perform(get("/brand/fetch")
                         .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
                         .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
                         .param("sortDirection", "INVALID"))
@@ -172,7 +178,7 @@ class BrandControllerTest {
         String expectedMessage = GlobalExceptionMessage.INVALID_PARAMETERS;
         String expectedErrorMessage = GlobalExceptionMessage.NO_NEGATIVE_PAGE;
 
-        mvc.perform(get("/brands/")
+        mvc.perform(get("/brand/fetch")
                         .param("page", "-1")
                         .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
                         .param("sortDirection", GlobalConstants.ASC))
@@ -188,7 +194,7 @@ class BrandControllerTest {
         String expectedMessage = GlobalExceptionMessage.INVALID_PARAMETERS;
         String expectedErrorMessage = GlobalExceptionMessage.GREATER_ZERO_SIZE;
 
-        mvc.perform(get("/brands/")
+        mvc.perform(get("/brand/fetch")
                         .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
                         .param("size", "0")
                         .param("sortDirection", GlobalConstants.ASC))
@@ -201,7 +207,7 @@ class BrandControllerTest {
 
     @Test
     void shouldReturnOkWhenParametersAreValid() throws Exception {
-        mvc.perform(get("/brands/")
+        mvc.perform(get("/brand/fetch")
                         .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
                         .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
                         .param("sortDirection", GlobalConstants.ASC))
