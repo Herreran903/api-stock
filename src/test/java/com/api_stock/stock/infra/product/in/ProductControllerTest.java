@@ -6,10 +6,12 @@ import com.api_stock.stock.domain.product.exception.ProductExceptionMessage;
 import com.api_stock.stock.domain.product.util.ProductConstants;
 import com.api_stock.stock.domain.util.GlobalConstants;
 import com.api_stock.stock.domain.util.GlobalExceptionMessage;
+import com.api_stock.stock.infra.security.jwt.JwtService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -27,10 +29,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ProductController.class)
+@AutoConfigureMockMvc(addFilters=false)
 class ProductControllerTest {
 
     @Autowired
     private MockMvc mvc;
+
+    @MockBean
+    private JwtService jwtService;
 
     @MockBean
     private IProductHandler productHandler;
@@ -43,7 +49,7 @@ class ProductControllerTest {
 
         String requestBody = getRequestBody(name);
 
-        mvc.perform(post("/products/")
+        mvc.perform(post("/product/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andDo(print())
@@ -76,7 +82,7 @@ class ProductControllerTest {
     void shouldReturnBadRequestIfJsonNoValid() throws Exception {
         String expectedMessage = GlobalExceptionMessage.INVALID_JSON;
 
-        mvc.perform(post("/products/")
+        mvc.perform(post("/product/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":,}"))
                 .andDo(print())
@@ -97,7 +103,7 @@ class ProductControllerTest {
                 "\"brandId\":\"1\"," +
                 "\"categoryIds\":[1,2,3]}";
 
-        mvc.perform(post("/products/")
+        mvc.perform(post("/product/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andDo(print())
@@ -120,7 +126,7 @@ class ProductControllerTest {
                         "\"brandId\":\"1\"," +
                         "\"categoryIds\":[1,2,3]}";
 
-        mvc.perform(post("/products/")
+        mvc.perform(post("/product/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andDo(print())
@@ -142,7 +148,7 @@ class ProductControllerTest {
                         "\"brandId\":\"1\"," +
                         "\"categoryIds\":[1,2,3]}";
 
-        mvc.perform(post("/products/")
+        mvc.perform(post("/product/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andDo(print())
@@ -165,7 +171,7 @@ class ProductControllerTest {
                         "\"brandId\":\"1\"," +
                         "\"categoryIds\":[1,2,3]}";
 
-        mvc.perform(post("/products/")
+        mvc.perform(post("/product/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andDo(print())
@@ -187,7 +193,7 @@ class ProductControllerTest {
                         "\"stock\":\"5\"," +
                         "\"categoryIds\":[1,2,3]}";
 
-        mvc.perform(post("/products/")
+        mvc.perform(post("/product/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andDo(print())
@@ -209,7 +215,7 @@ class ProductControllerTest {
                         "\"stock\":\"5\"," +
                         "\"brandId\":\"1\"}";
 
-        mvc.perform(post("/products/")
+        mvc.perform(post("/product/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andDo(print())
@@ -237,7 +243,7 @@ class ProductControllerTest {
                         "\"brandId\":\"1\"," +
                         "\"categoryIds\":" + categoryIds + "}";
 
-        mvc.perform(post("/products/")
+        mvc.perform(post("/product/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andDo(print())
@@ -260,7 +266,7 @@ class ProductControllerTest {
                         "\"brandId\":\"1\"," +
                         "\"categoryIds\":[1,1,1]}";
 
-        mvc.perform(post("/products/")
+        mvc.perform(post("/product/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andDo(print())
@@ -281,7 +287,7 @@ class ProductControllerTest {
                         "\"brandId\":\"1\"," +
                         "\"categoryIds\":[1,3,2]}";
 
-        mvc.perform(post("/products/")
+        mvc.perform(post("/product/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andDo(print())
@@ -295,7 +301,7 @@ class ProductControllerTest {
         String expectedMessage = GlobalExceptionMessage.INVALID_PARAMETERS;
         String expectedErrorMessage = GlobalExceptionMessage.INVALID_SORT_DIRECTION;
 
-        mvc.perform(get("/products/")
+        mvc.perform(get("/product/fetch")
                         .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
                         .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
                         .param("sortDirection", "INVALID")
@@ -312,7 +318,7 @@ class ProductControllerTest {
         String expectedMessage = GlobalExceptionMessage.INVALID_PARAMETERS;
         String expectedErrorMessage = ProductExceptionMessage.INVALID_PROPERTY_DIRECTION;
 
-        mvc.perform(get("/products/")
+        mvc.perform(get("/product/fetch")
                         .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
                         .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
                         .param("sortDirection", GlobalConstants.ASC)
@@ -329,7 +335,7 @@ class ProductControllerTest {
         String expectedMessage = GlobalExceptionMessage.INVALID_PARAMETERS;
         String expectedErrorMessage = GlobalExceptionMessage.NO_NEGATIVE_PAGE;
 
-        mvc.perform(get("/products/")
+        mvc.perform(get("/product/fetch")
                         .param("page", "-1")
                         .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
                         .param("sortDirection", GlobalConstants.ASC)
@@ -347,7 +353,7 @@ class ProductControllerTest {
         String expectedMessage = GlobalExceptionMessage.INVALID_PARAMETERS;
         String expectedErrorMessage = GlobalExceptionMessage.GREATER_ZERO_SIZE;
 
-        mvc.perform(get("/products/")
+        mvc.perform(get("/product/fetch")
                         .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
                         .param("size", "0")
                         .param("sortDirection", GlobalConstants.ASC)
@@ -361,7 +367,7 @@ class ProductControllerTest {
 
     @Test
     void shouldReturnOkWhenParametersAreValid() throws Exception {
-        mvc.perform(get("/products/")
+        mvc.perform(get("/product/fetch")
                         .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
                         .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
                         .param("sortDirection", GlobalConstants.ASC)

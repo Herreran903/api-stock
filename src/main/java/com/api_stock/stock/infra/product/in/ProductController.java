@@ -18,16 +18,22 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+import static com.api_stock.stock.infra.util.Urls.PRODUCT_URL;
+
 @RestController
-@RequestMapping("/products")
+@RequestMapping(PRODUCT_URL)
 @Validated
 public class ProductController {
+
+    private static final String CREATE_PRODUCT_URL = "/create";
+    private static final String FETCH_PRODUCT_URL = "/fetch";
 
     private final IProductHandler productHandler;
 
@@ -69,7 +75,8 @@ public class ProductController {
                     )
             )
     )
-    @PostMapping("/")
+    @PostMapping(CREATE_PRODUCT_URL)
+    @PreAuthorize("hasRole(T(com.api_stock.stock.domain.role.util.RoleEnum).ROLE_ADMIN.toString())")
     public ResponseEntity<Void> createProduct(@Valid @RequestBody ProductRequest productRequest) {
         productHandler.createProduct(productRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -90,7 +97,7 @@ public class ProductController {
                             schema = @Schema(implementation = String.class))
             }
     )
-    @GetMapping("/")
+    @GetMapping(FETCH_PRODUCT_URL)
     public ResponseEntity<PageData<ProductResponse>> getProductsByPage(
             @Min(value = GlobalConstants.MIN_PAGE_NUMBER, message = GlobalExceptionMessage.NO_NEGATIVE_PAGE)
             @RequestParam(defaultValue = GlobalConstants.DEFAULT_PAGE_NUMBER)
