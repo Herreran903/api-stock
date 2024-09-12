@@ -27,4 +27,7 @@ public final class GlobalExceptionMessage {
     public static final String NO_NEGATIVE_PAGE =
             "Page number must be non-negative";
 
+    public static final String BAD_ROLE =
+            "The user's role is invalid or not properly assigned";
+
 }

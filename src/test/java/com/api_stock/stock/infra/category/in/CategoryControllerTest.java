@@ -6,10 +6,12 @@ import com.api_stock.stock.domain.category.exception.CategoryExceptionMessage;
 import com.api_stock.stock.domain.category.exception.ex.CategoryAlreadyExistException;
 import com.api_stock.stock.domain.util.GlobalConstants;
 import com.api_stock.stock.domain.util.GlobalExceptionMessage;
+import com.api_stock.stock.infra.security.jwt.JwtService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -24,7 +26,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(CategoryController.class)
+@AutoConfigureMockMvc(addFilters=false)
 class CategoryControllerTest {
+
+    @MockBean
+    private JwtService jwtService;
 
     @Autowired
     private MockMvc mvc;
@@ -47,7 +53,7 @@ class CategoryControllerTest {
             requestBody = "{\"name\":\"\",\"description\":\"Devices and gadgets\"}";
         }
 
-        mvc.perform(post("/categories/")
+        mvc.perform(post("/category/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andDo(print())
@@ -72,7 +78,7 @@ class CategoryControllerTest {
             requestBody = "{\"name\":\"Electronics\",\"description\":\"\"}";
         }
 
-        mvc.perform(post("/categories/")
+        mvc.perform(post("/category/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andDo(print())
@@ -86,7 +92,7 @@ class CategoryControllerTest {
     void shouldReturnBadRequestIfJsonNoValid() throws Exception {
         String expectedMessage = GlobalExceptionMessage.INVALID_JSON;
 
-        mvc.perform(post("/categories/")
+        mvc.perform(post("/category/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":,}"))
                 .andDo(print())
@@ -99,7 +105,7 @@ class CategoryControllerTest {
         String expectedMessage = GlobalExceptionMessage.INVALID_JSON;
         String expectedErrorMessage = String.format(GlobalExceptionMessage.INVALID_TYPE_PARAM, "description", "String");
 
-        mvc.perform(post("/categories/")
+        mvc.perform(post("/category/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"Electronics\", \"description\":[]}"))
                 .andDo(print())
@@ -114,7 +120,7 @@ class CategoryControllerTest {
         String expectedMessage = GlobalExceptionMessage.INVALID_JSON;
         String expectedErrorMessage = String.format(GlobalExceptionMessage.INVALID_TYPE_PARAM, "name", "String");
 
-        mvc.perform(post("/categories/")
+        mvc.perform(post("/category/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":[], \"description\":\"Devices and gadgets\"}"))
                 .andDo(print())
@@ -126,7 +132,7 @@ class CategoryControllerTest {
 
     @Test
     void shouldReturnCreatedWhenCategoryIsSuccessfullyCreated() throws Exception {
-        mvc.perform(post("/categories/")
+        mvc.perform(post("/category/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"Electronics\",\"description\":\"Devices and gadgets\"}"))
                 .andDo(print())
@@ -141,7 +147,7 @@ class CategoryControllerTest {
 
         doThrow(new CategoryAlreadyExistException(expectedMessage)).when(categoryHandler).createBrand(any(CategoryRequest.class));
 
-        mvc.perform(post("/categories/")
+        mvc.perform(post("/category/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"Electronics\",\"description\":\"Devices and gadgets\"}"))
                 .andDo(print())
@@ -154,7 +160,7 @@ class CategoryControllerTest {
         String expectedMessage = GlobalExceptionMessage.INVALID_PARAMETERS;
         String expectedErrorMessage = GlobalExceptionMessage.INVALID_SORT_DIRECTION;
 
-        mvc.perform(get("/categories/")
+        mvc.perform(get("/category/fetch")
                         .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
                         .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
                         .param("sortDirection", "INVALID"))
@@ -170,7 +176,7 @@ class CategoryControllerTest {
         String expectedMessage = GlobalExceptionMessage.INVALID_PARAMETERS;
         String expectedErrorMessage = GlobalExceptionMessage.NO_NEGATIVE_PAGE;
 
-        mvc.perform(get("/categories/")
+        mvc.perform(get("/category/fetch")
                         .param("page", "-1")
                         .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
                         .param("sortDirection", GlobalConstants.ASC))
@@ -187,7 +193,7 @@ class CategoryControllerTest {
         String expectedMessage = GlobalExceptionMessage.INVALID_PARAMETERS;
         String expectedErrorMessage = GlobalExceptionMessage.GREATER_ZERO_SIZE;
 
-        mvc.perform(get("/categories/")
+        mvc.perform(get("/category/fetch")
                         .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
                         .param("size", "0")
                         .param("sortDirection", GlobalConstants.ASC))
@@ -200,7 +206,7 @@ class CategoryControllerTest {
 
     @Test
     void shouldReturnOkWhenParametersAreValid() throws Exception {
-        mvc.perform(get("/categories/")
+        mvc.perform(get("/category/fetch")
                         .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
                         .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
                         .param("sortDirection", GlobalConstants.ASC))

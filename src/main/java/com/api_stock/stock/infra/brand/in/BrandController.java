@@ -16,13 +16,19 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import static com.api_stock.stock.infra.util.Urls.BRAND_URL;
+
 @RestController
-@RequestMapping("/brands")
+@RequestMapping(BRAND_URL)
 @Validated
 public class BrandController {
+
+    private static final String CREATE_BRAND_URL = "/create";
+    private static final String FETCH_BRAND_URL = "/fetch";
 
     private final IBrandHandler brandHandler;
 
@@ -44,7 +50,8 @@ public class BrandController {
                     )
             )
     )
-    @PostMapping("/")
+    @PostMapping(CREATE_BRAND_URL)
+    @PreAuthorize("hasRole(T(com.api_stock.stock.domain.role.util.RoleEnum).ROLE_ADMIN.toString())")
     ResponseEntity<Void> createBrand(@Valid @RequestBody BrandRequest brandRequest) {
         brandHandler.createBrand(brandRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -60,7 +67,7 @@ public class BrandController {
                     @Parameter(name = "sortDirection", description = "Sort direction (ASC or DESC)", schema = @Schema(implementation = String.class))
             }
     )
-    @GetMapping("/")
+    @GetMapping(FETCH_BRAND_URL)
     ResponseEntity<PageData<BrandResponse>> getBrandsByPage(
             @Min(value = GlobalConstants.MIN_PAGE_NUMBER, message = GlobalExceptionMessage.NO_NEGATIVE_PAGE)
             @RequestParam(defaultValue = GlobalConstants.DEFAULT_PAGE_NUMBER)

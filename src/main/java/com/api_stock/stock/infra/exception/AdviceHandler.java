@@ -15,6 +15,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -140,6 +141,21 @@ public class AdviceHandler {
         );
 
         return new ResponseEntity<>(details, HttpStatus.NOT_FOUND);
+    }
+
+    //Auth
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ExceptionDetails> handleAccessDeniedException(AccessDeniedException ex) {
+        ExceptionDetails details = new ExceptionDetails(
+                HttpStatus.FORBIDDEN.value(),
+                HttpStatus.FORBIDDEN.getReasonPhrase(),
+                GlobalExceptionMessage.BAD_ROLE,
+                "",
+                LocalDateTime.now(),
+                null
+        );
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(details);
     }
 
     //General
