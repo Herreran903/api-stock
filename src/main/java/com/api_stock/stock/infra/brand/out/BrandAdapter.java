@@ -11,8 +11,9 @@ import org.springframework.data.domain.Sort;
 import java.util.List;
 import java.util.Optional;
 
-public class BrandAdapter implements IBrandPersistencePort {
+import static com.api_stock.stock.domain.brand.util.BrandConstants.NAME;
 
+public class BrandAdapter implements IBrandPersistencePort {
     private final IBrandRepository brandRepository;
     private final IBrandMapper brandMapper;
 
@@ -34,7 +35,7 @@ public class BrandAdapter implements IBrandPersistencePort {
     @Override
     public PageData<Brand> getBrandsByPage(int page, int size, String sortDirection) {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-        Pageable sortedPageable = PageRequest.of(page, size, Sort.by(direction, "name"));
+        Pageable sortedPageable = PageRequest.of(page, size, Sort.by(direction, NAME));
 
         Page<BrandEntity> brandEntityPage = brandRepository.findAll(sortedPageable);
 

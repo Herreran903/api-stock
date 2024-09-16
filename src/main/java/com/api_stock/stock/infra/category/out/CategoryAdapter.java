@@ -10,6 +10,8 @@ import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
+import static com.api_stock.stock.domain.category.util.CategoryConstants.NAME;
+
 public class CategoryAdapter implements ICategoryPersistencePort {
 
     ICategoryRepository categoryRepository;
@@ -33,7 +35,7 @@ public class CategoryAdapter implements ICategoryPersistencePort {
     @Override
     public PageData<Category> getCategoriesByPage(int page, int size, String sortDirection) {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-        Pageable sortedPageable = PageRequest.of(page, size, Sort.by(direction, "name"));
+        Pageable sortedPageable = PageRequest.of(page, size, Sort.by(direction, NAME));
 
         Page<CategoryEntity> categoryEntityPage = categoryRepository.findAll(sortedPageable);
 

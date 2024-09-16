@@ -1,7 +1,6 @@
 package com.api_stock.stock.domain.category.model;
 
 public class Category {
-
     private Long id;
     private String name;
     private String description;

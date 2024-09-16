@@ -26,7 +26,6 @@ import static com.api_stock.stock.infra.util.Urls.CATEGORY_URL;
 @RequestMapping(CATEGORY_URL)
 @Validated
 public class CategoryController {
-
     private static final String CREATE_CATEGORY_URL = "/create";
     private static final String FETCH_CATEGORY_URL = "/fetch";
 

@@ -1,7 +1,6 @@
 package com.api_stock.stock.domain.util;
 
 public final class GlobalExceptionMessage {
-
     private GlobalExceptionMessage() {
         throw new AssertionError();
     }
@@ -29,5 +28,8 @@ public final class GlobalExceptionMessage {
 
     public static final String BAD_ROLE =
             "The user's role is invalid or not properly assigned";
+
+    public static final String INVALID_TOKEN =
+            "Invalid JWT Token provided";
 
 }

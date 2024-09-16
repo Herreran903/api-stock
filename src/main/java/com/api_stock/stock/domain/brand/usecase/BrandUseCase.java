@@ -1,20 +1,21 @@
 package com.api_stock.stock.domain.brand.usecase;
 
 import com.api_stock.stock.domain.brand.api.IBrandServicePort;
-import com.api_stock.stock.domain.brand.exception.BrandExceptionMessage;
 import com.api_stock.stock.domain.brand.exception.ex.BrandAlreadyExistException;
 import com.api_stock.stock.domain.brand.exception.ex.BrandNotFoundByIdException;
 import com.api_stock.stock.domain.brand.exception.ex.BrandNotValidFieldException;
 import com.api_stock.stock.domain.brand.exception.ex.BrandNotValidParameterException;
 import com.api_stock.stock.domain.brand.model.Brand;
 import com.api_stock.stock.domain.brand.spi.IBrandPersistencePort;
-import com.api_stock.stock.domain.brand.util.BrandConstants;
 import com.api_stock.stock.domain.page.PageData;
 import com.api_stock.stock.domain.util.GlobalConstants;
 import com.api_stock.stock.domain.util.GlobalExceptionMessage;
 
-public class BrandUseCase implements IBrandServicePort {
+import static com.api_stock.stock.domain.brand.exception.BrandExceptionMessage.*;
+import static com.api_stock.stock.domain.brand.util.BrandConstants.MAX_DESCRIPTION_LENGTH;
+import static com.api_stock.stock.domain.brand.util.BrandConstants.MAX_NAME_LENGTH;
 
+public class BrandUseCase implements IBrandServicePort {
     private final IBrandPersistencePort brandPersistencePort;
 
     public BrandUseCase(IBrandPersistencePort brandPersistencePort) {
@@ -28,19 +29,19 @@ public class BrandUseCase implements IBrandServicePort {
         String brandDescription = brand.getDescription();
 
         if (brandName == null || brandName.trim().isEmpty())
-            throw new BrandNotValidFieldException(BrandExceptionMessage.EMPTY_NAME);
+            throw new BrandNotValidFieldException(EMPTY_NAME);
 
         if (brandDescription == null || brandDescription.trim().isEmpty())
-            throw new BrandNotValidFieldException(BrandExceptionMessage.EMPTY_DESCRIPTION);
+            throw new BrandNotValidFieldException(EMPTY_DESCRIPTION);
 
-        if (brandName.length() > BrandConstants.MAX_NAME_LENGTH)
-            throw new BrandNotValidFieldException(BrandExceptionMessage.TOO_LONG_NAME);
+        if (brandName.length() > MAX_NAME_LENGTH)
+            throw new BrandNotValidFieldException(TOO_LONG_NAME);
 
-        if (brandDescription.length() > BrandConstants.MAX_DESCRIPTION_LENGTH)
-            throw new BrandNotValidFieldException(BrandExceptionMessage.TOO_LONG_DESCRIPTION);
+        if (brandDescription.length() > MAX_DESCRIPTION_LENGTH)
+            throw new BrandNotValidFieldException(TOO_LONG_DESCRIPTION);
 
         if (Boolean.TRUE.equals(brandPersistencePort.isBrandPresentByName(brandName)))
-            throw new BrandAlreadyExistException(BrandExceptionMessage.ALREADY_EXIST_BRAND);
+            throw new BrandAlreadyExistException(ALREADY_EXIST_BRAND);
 
         brandPersistencePort.createBrand(brand);
     }
@@ -62,6 +63,6 @@ public class BrandUseCase implements IBrandServicePort {
     @Override
     public Brand getBrandById(Long id) {
         return brandPersistencePort.getBrandById(id)
-                .orElseThrow(() -> new BrandNotFoundByIdException(BrandExceptionMessage.NO_FOUND_BRAND));
+                .orElseThrow(() -> new BrandNotFoundByIdException(NO_FOUND_BRAND));
     }
 }

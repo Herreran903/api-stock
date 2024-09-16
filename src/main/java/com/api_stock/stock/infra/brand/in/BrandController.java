@@ -26,7 +26,6 @@ import static com.api_stock.stock.infra.util.Urls.BRAND_URL;
 @RequestMapping(BRAND_URL)
 @Validated
 public class BrandController {
-
     private static final String CREATE_BRAND_URL = "/create";
     private static final String FETCH_BRAND_URL = "/fetch";
 

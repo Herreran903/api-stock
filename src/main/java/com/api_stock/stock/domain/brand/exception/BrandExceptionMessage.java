@@ -3,7 +3,6 @@ package com.api_stock.stock.domain.brand.exception;
 import com.api_stock.stock.domain.brand.util.BrandConstants;
 
 public final class BrandExceptionMessage {
-
     private BrandExceptionMessage(){
         throw new AssertionError();
     }

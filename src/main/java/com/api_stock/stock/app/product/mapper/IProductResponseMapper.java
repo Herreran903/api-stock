@@ -9,7 +9,6 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface IProductResponseMapper {
-
     ProductResponse toResponse(Product product);
     List<ProductResponse> toListResponse(List<Product> products);
     PageData<ProductResponse> toPageResponse(PageData<Product> products);
