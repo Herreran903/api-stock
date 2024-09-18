@@ -7,7 +7,6 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface ICategoryRequestMapper {
-
     @Mapping(target = "id", ignore = true)
     Category toCategory(CategoryRequest categoryRequest);
 }

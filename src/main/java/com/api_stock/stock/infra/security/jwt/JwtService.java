@@ -12,9 +12,10 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.util.function.Function;
 
+import static com.api_stock.stock.domain.util.GlobalConstants.ROLES;
+
 @Service
 public class JwtService {
-
     @Value("${jwt.secret.key}")
     private String secretKey;
 
@@ -33,7 +34,7 @@ public class JwtService {
     }
 
     public GrantedAuthority extractAuthorities(String token) {
-        String role = extractClaim(token, claims -> claims.get("roles", String.class));
+        String role = extractClaim(token, claims -> claims.get(ROLES, String.class));
 
         return new SimpleGrantedAuthority(role);
     }

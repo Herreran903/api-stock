@@ -18,10 +18,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 
+import static com.api_stock.stock.domain.util.GlobalConstants.*;
+
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
-
     private final JwtService jwtService;
 
     @Override
@@ -30,7 +31,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
+        String authHeader = request.getHeader(HEADER_STRING);
 
         if (isValidAuthHeader(authHeader)) {
             String jwt = extractJwt(authHeader);
@@ -47,11 +48,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     private boolean isValidAuthHeader(String authHeader) {
-        return authHeader != null && authHeader.startsWith("Bearer ");
+        return authHeader != null && authHeader.startsWith(TOKEN_PREFIX);
     }
 
     private String extractJwt(String authHeader) {
-        return authHeader.substring(7);
+        return authHeader.substring(TOKEN_SUBSTRING);
     }
 
     private boolean isAlreadyAuthenticated() {

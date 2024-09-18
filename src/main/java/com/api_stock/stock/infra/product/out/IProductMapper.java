@@ -6,12 +6,14 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
+import static com.api_stock.stock.domain.product.util.ProductConstants.BRAND;
+import static com.api_stock.stock.domain.product.util.ProductConstants.CATEGORIES;
+
 @Mapper(componentModel = "spring")
 public interface IProductMapper {
-
-    @Mapping(source = "brand", target = "brand")
-    @Mapping(source = "categories", target = "categories")
+    @Mapping(source = BRAND, target = BRAND)
+    @Mapping(source = CATEGORIES, target = CATEGORIES)
     ProductEntity toEntity(Product product);
-
     List<Product> toListProduct(List<ProductEntity> productEntities);
+    Product toProduct(ProductEntity productEntity);
 }

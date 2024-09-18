@@ -5,9 +5,10 @@ import com.api_stock.stock.domain.brand.model.Brand;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import static com.api_stock.stock.domain.brand.util.BrandConstants.BRAND_ID;
+
 @Mapper(componentModel = "spring")
 public interface IBrandRequestMapper {
-
-    @Mapping(target = "id", ignore = true)
+    @Mapping(target = BRAND_ID, ignore = true)
     Brand toBrand(BrandRequest brandRequest);
 }

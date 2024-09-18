@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @RequiredArgsConstructor
 public class BeanBrandConfig {
-
     private final IBrandRepository brandRepository;
     private final IBrandMapper brandMapper;
 

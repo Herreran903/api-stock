@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class BrandHandler implements IBrandHandler {
-
     private final IBrandServicePort brandServicePort;
     private final IBrandRequestMapper brandRequestMapper;
     private final IBrandResponseMapper brandResponseMapper;

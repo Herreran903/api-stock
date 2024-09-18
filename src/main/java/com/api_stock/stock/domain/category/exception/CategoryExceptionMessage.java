@@ -3,7 +3,6 @@ package com.api_stock.stock.domain.category.exception;
 import com.api_stock.stock.domain.category.util.CategoryConstants;
 
 public final class CategoryExceptionMessage {
-
     private CategoryExceptionMessage() {
         throw new AssertionError();
     }

@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @RequiredArgsConstructor
 public class BeanProductConfig {
-
     private final IProductRepository productRepository;
     private final IProductMapper productMapper;
 

@@ -11,7 +11,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ExceptionDetails {
-
     private int code;
     private String status;
     private String message;
