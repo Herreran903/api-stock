@@ -12,13 +12,14 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.util.Set;
 
+import static com.api_stock.stock.domain.product.util.ProductConstants.*;
+
 @Entity
-@Table(name = "product")
+@Table(name = PRODUCT_TABLE_NAME)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -36,15 +37,15 @@ public class ProductEntity {
     private int stock;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "brand_id",nullable = false)
+    @JoinColumn(name = BRAND_ID_COLUMN ,nullable = false)
     private BrandEntity brand;
 
     @ManyToMany
     @JoinTable(
-            name = "product_categories",
-            joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = {"product_id", "category_id"})
+            name = PRODUCT_CATEGORIES_TABLE_NAME,
+            joinColumns = @JoinColumn(name = PRODUCT_ID_COLUMN),
+            inverseJoinColumns = @JoinColumn(name = CATEGORY_ID_COLUMN),
+            uniqueConstraints = @UniqueConstraint(columnNames = {PRODUCT_ID_COLUMN, CATEGORY_ID_COLUMN})
     )
     @Size(min = ProductConstants.MIN_CATEGORIES_IDS,
             max = ProductConstants.MAX_CATEGORIES_IDS,

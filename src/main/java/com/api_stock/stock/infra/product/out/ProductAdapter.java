@@ -3,17 +3,19 @@ package com.api_stock.stock.infra.product.out;
 import com.api_stock.stock.domain.page.PageData;
 import com.api_stock.stock.domain.product.model.Product;
 import com.api_stock.stock.domain.product.spi.IProductPersistencePort;
-import com.api_stock.stock.domain.product.util.ProductConstants;
-import com.api_stock.stock.domain.util.GlobalConstants;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
+import java.util.Optional;
+
+import static com.api_stock.stock.domain.product.util.ProductConstants.*;
+import static com.api_stock.stock.domain.util.GlobalConstants.ASC;
+import static com.api_stock.stock.domain.util.GlobalConstants.DESC;
 
 public class ProductAdapter implements IProductPersistencePort {
-
     private final IProductRepository productRepository;
     private final IProductMapper productMapper;
 
@@ -32,16 +34,16 @@ public class ProductAdapter implements IProductPersistencePort {
         Page<ProductEntity> productEntityPage = null;
         Pageable sortedPageable;
 
-        if (sortProperty.equals(ProductConstants.CATEGORIES)){
+        if (sortProperty.equals(CATEGORIES)){
             sortedPageable = PageRequest.of(page, size);
-            if (sortDirection.equals(GlobalConstants.ASC))
+            if (sortDirection.equals(ASC))
                 productEntityPage = productRepository.findProductsSortedByCategoryAsc(sortedPageable);
 
-            if (sortDirection.equals(GlobalConstants.DESC))
+            if (sortDirection.equals(DESC))
                 productEntityPage = productRepository.findProductsSortedByCategoryDesc(sortedPageable);
         } else {
             Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-            String auxSortProperty = sortProperty.equals(ProductConstants.BRAND) ? ProductConstants.BRAND_NAME : sortProperty;
+            String auxSortProperty = sortProperty.equals(BRAND) ? BRAND_NAME : sortProperty;
             sortedPageable = PageRequest.of(page, size, Sort.by(direction, auxSortProperty));
 
             productEntityPage = productRepository.findAll(sortedPageable);
@@ -59,5 +61,17 @@ public class ProductAdapter implements IProductPersistencePort {
                 productEntityPage.hasNext(),
                 productEntityPage.hasPrevious()
         );
+    }
+
+    @Override
+    public Optional<Product> getProductById(Long id) {
+        return productRepository.findById(id).map(productMapper::toProduct);
+    }
+
+    @Override
+    public void updateProduct(Product product) {
+        ProductEntity productEntity = productMapper.toEntity(product);
+
+        productRepository.save(productEntity);
     }
 }

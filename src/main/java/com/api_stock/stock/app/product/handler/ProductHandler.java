@@ -2,6 +2,7 @@ package com.api_stock.stock.app.product.handler;
 
 import com.api_stock.stock.app.product.dto.ProductRequest;
 import com.api_stock.stock.app.product.dto.ProductResponse;
+import com.api_stock.stock.app.product.dto.StockRequest;
 import com.api_stock.stock.app.product.mapper.IProductRequestMapper;
 import com.api_stock.stock.app.product.mapper.IProductResponseMapper;
 import com.api_stock.stock.domain.brand.api.IBrandServicePort;
@@ -19,7 +20,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ProductHandler implements IProductHandler {
-
     private final IProductServicePort productServicePort;
     private final IProductRequestMapper productRequestMapper;
     private final IProductResponseMapper productResponseMapper;
@@ -28,7 +28,6 @@ public class ProductHandler implements IProductHandler {
 
     @Override
     public void createProduct(ProductRequest productRequest) {
-
         Brand brand = brandServicePort.getBrandById(productRequest.getBrandId());
         List<Category> categories = categoryServicePort.getCategoriesByIds(productRequest.getCategoryIds());
 
@@ -45,5 +44,10 @@ public class ProductHandler implements IProductHandler {
         PageData<Product> products = productServicePort.getCategoriesByPage(page, size, sortDirection, sortProperty);
 
         return productResponseMapper.toPageResponse(products);
+    }
+
+    @Override
+    public void updateStock(StockRequest stockRequest) {
+        productServicePort.updateStock(stockRequest.getProduct(), stockRequest.getAmount());
     }
 }

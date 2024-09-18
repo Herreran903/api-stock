@@ -4,19 +4,20 @@ import com.api_stock.stock.domain.category.api.ICategoryServicePort;
 import com.api_stock.stock.domain.category.exception.ex.CategoriesNotFoundByIdsException;
 import com.api_stock.stock.domain.category.exception.ex.CategoryAlreadyExistException;
 import com.api_stock.stock.domain.category.exception.ex.CategoryNotValidFieldException;
-import com.api_stock.stock.domain.category.exception.CategoryExceptionMessage;
 import com.api_stock.stock.domain.category.exception.ex.CategoryNotValidParameterException;
 import com.api_stock.stock.domain.category.model.Category;
 import com.api_stock.stock.domain.category.spi.ICategoryPersistencePort;
-import com.api_stock.stock.domain.category.util.CategoryConstants;
 import com.api_stock.stock.domain.page.PageData;
-import com.api_stock.stock.domain.util.GlobalConstants;
-import com.api_stock.stock.domain.util.GlobalExceptionMessage;
 
 import java.util.List;
 
-public class CategoryUseCase implements ICategoryServicePort {
+import static com.api_stock.stock.domain.category.exception.CategoryExceptionMessage.*;
+import static com.api_stock.stock.domain.category.util.CategoryConstants.MAX_DESCRIPTION_LENGTH;
+import static com.api_stock.stock.domain.category.util.CategoryConstants.MAX_NAME_LENGTH;
+import static com.api_stock.stock.domain.util.GlobalConstants.*;
+import static com.api_stock.stock.domain.util.GlobalExceptionMessage.*;
 
+public class CategoryUseCase implements ICategoryServicePort {
     private final ICategoryPersistencePort categoryPersistencePort;
 
     public CategoryUseCase(ICategoryPersistencePort categoryPersistencePort) {
@@ -30,19 +31,19 @@ public class CategoryUseCase implements ICategoryServicePort {
         String categoryDescription = category.getDescription();
 
         if (categoryName == null || categoryName.trim().isEmpty())
-            throw new CategoryNotValidFieldException(CategoryExceptionMessage.EMPTY_NAME);
+            throw new CategoryNotValidFieldException(EMPTY_NAME);
 
         if (categoryDescription == null || categoryDescription.trim().isEmpty())
-            throw new CategoryNotValidFieldException(CategoryExceptionMessage.EMPTY_DESCRIPTION);
+            throw new CategoryNotValidFieldException(EMPTY_DESCRIPTION);
 
-        if (categoryName.length() > CategoryConstants.MAX_NAME_LENGTH)
-            throw new CategoryNotValidFieldException(CategoryExceptionMessage.TOO_LONG_NAME);
+        if (categoryName.length() > MAX_NAME_LENGTH)
+            throw new CategoryNotValidFieldException(TOO_LONG_NAME);
 
-        if (categoryDescription.length() > CategoryConstants.MAX_DESCRIPTION_LENGTH)
-            throw new CategoryNotValidFieldException(CategoryExceptionMessage.TOO_LONG_DESCRIPTION);
+        if (categoryDescription.length() > MAX_DESCRIPTION_LENGTH)
+            throw new CategoryNotValidFieldException(TOO_LONG_DESCRIPTION);
 
         if (Boolean.TRUE.equals(categoryPersistencePort.isCategoryPresentByName(categoryName)))
-            throw new CategoryAlreadyExistException(CategoryExceptionMessage.ALREADY_EXIST_CATEGORY);
+            throw new CategoryAlreadyExistException(ALREADY_EXIST_CATEGORY);
 
         categoryPersistencePort.createCategory(category);
     }
@@ -57,7 +58,7 @@ public class CategoryUseCase implements ICategoryServicePort {
             List<Long> foundIds = categories.stream().map(Category::getId).toList();
             List<Long> missingIds = ids.stream().filter(id -> !foundIds.contains(id)).toList();
 
-            throw new CategoriesNotFoundByIdsException(CategoryExceptionMessage.NO_FOUND_CATEGORIES, missingIds);
+            throw new CategoriesNotFoundByIdsException(NO_FOUND_CATEGORIES, missingIds);
         }
 
         return categories;
@@ -67,14 +68,14 @@ public class CategoryUseCase implements ICategoryServicePort {
     @Override
     public PageData<Category> getCategoriesByPage(int page, int size, String sortDirection) {
 
-        if (!(GlobalConstants.ASC.equalsIgnoreCase(sortDirection) || GlobalConstants.DESC.equalsIgnoreCase(sortDirection)))
-            throw new CategoryNotValidParameterException(GlobalExceptionMessage.INVALID_SORT_DIRECTION);
+        if (!(ASC.equalsIgnoreCase(sortDirection) || DESC.equalsIgnoreCase(sortDirection)))
+            throw new CategoryNotValidParameterException(INVALID_SORT_DIRECTION);
 
-        if (page < GlobalConstants.MIN_PAGE_NUMBER)
-            throw new CategoryNotValidParameterException(GlobalExceptionMessage.NO_NEGATIVE_PAGE);
+        if (page < MIN_PAGE_NUMBER)
+            throw new CategoryNotValidParameterException(NO_NEGATIVE_PAGE);
 
-        if (size < GlobalConstants.MIN_PAGE_SIZE)
-            throw new CategoryNotValidParameterException(GlobalExceptionMessage.GREATER_ZERO_SIZE);
+        if (size < MIN_PAGE_SIZE)
+            throw new CategoryNotValidParameterException(GREATER_ZERO_SIZE);
 
         return categoryPersistencePort.getCategoriesByPage(page, size, sortDirection);
     }

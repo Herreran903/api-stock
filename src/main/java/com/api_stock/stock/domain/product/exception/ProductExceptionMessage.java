@@ -2,6 +2,8 @@ package com.api_stock.stock.domain.product.exception;
 
 import com.api_stock.stock.domain.product.util.ProductConstants;
 
+import static com.api_stock.stock.domain.product.util.ProductConstants.MIN_AMOUNT_VALUE;
+
 public final class ProductExceptionMessage {
     private ProductExceptionMessage() {
         throw new AssertionError();
@@ -38,5 +40,18 @@ public final class ProductExceptionMessage {
 
     public static final String INVALID_PROPERTY_DIRECTION =
             "Sort direction must be 'name' or 'brand' or 'category'";
+
+    public static final String EMPTY_PRODUCT =
+            "The 'product' field is empty";
+
+    public static final String EMPTY_AMOUNT =
+            "The 'amount' field is empty";
+
+    public static final String MIN_AMOUNT =
+            "The 'amount' field must be greater than " + MIN_AMOUNT_VALUE;
+
+    public static final String NO_FOUND_PRODUCT =
+            "Brand does not found";
+
 }
 

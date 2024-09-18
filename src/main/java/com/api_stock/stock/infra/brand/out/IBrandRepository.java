@@ -7,7 +7,6 @@ import java.util.Optional;
 
 @Repository
 public interface IBrandRepository extends JpaRepository<BrandEntity, Long> {
-
     Optional<BrandEntity> findByName(String name);
 }
 

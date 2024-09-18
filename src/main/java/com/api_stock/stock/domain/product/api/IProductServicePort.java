@@ -6,4 +6,5 @@ import com.api_stock.stock.domain.product.model.Product;
 public interface IProductServicePort {
     void createProduct(Product product);
     PageData<Product> getCategoriesByPage(int page, int size, String sortDirection, String sortProperty);
+    void updateStock(Long productId, int amount);
 }

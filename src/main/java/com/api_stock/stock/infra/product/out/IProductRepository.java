@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 public interface IProductRepository extends JpaRepository<ProductEntity, Long> {
-
     @Query
     Page<ProductEntity> findProductsSortedByCategoryAsc(Pageable pageable);
 

@@ -8,9 +8,13 @@ import com.api_stock.stock.domain.category.exception.ex.CategoryNotValidFieldExc
 import com.api_stock.stock.domain.category.exception.ex.CategoryNotValidParameterException;
 import com.api_stock.stock.domain.brand.exception.ex.BrandAlreadyExistException;
 import com.api_stock.stock.domain.brand.exception.ex.BrandNotValidFieldException;
+import com.api_stock.stock.domain.product.exception.ex.ProductNotFoundByIdException;
+import com.api_stock.stock.domain.product.exception.ex.ProductNotValidFieldException;
+import com.api_stock.stock.domain.product.exception.ex.ProductNotValidParameterException;
 import com.api_stock.stock.domain.util.GlobalExceptionMessage;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 
+import io.jsonwebtoken.JwtException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,9 +30,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static com.api_stock.stock.domain.util.GlobalExceptionMessage.INVALID_TOKEN;
+
 @ControllerAdvice
 public class AdviceHandler {
-
     //Category
     @ExceptionHandler(CategoryAlreadyExistException.class)
     public ResponseEntity<ExceptionDetails> handleCategoryAlreadyExistException(CategoryAlreadyExistException ex, WebRequest request) {
@@ -143,6 +148,49 @@ public class AdviceHandler {
         return new ResponseEntity<>(details, HttpStatus.NOT_FOUND);
     }
 
+    //Product
+    @ExceptionHandler(ProductNotFoundByIdException.class)
+    public ResponseEntity<ExceptionDetails> handleProductNotFoundByIdsException(ProductNotFoundByIdException ex) {
+        ExceptionDetails details = new ExceptionDetails(
+                HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase(),
+                ex.getMessage(),
+                "",
+                LocalDateTime.now(),
+                null
+        );
+
+        return new ResponseEntity<>(details, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ProductNotValidFieldException.class)
+    public ResponseEntity<ExceptionDetails> handleInvalidParameterException(ProductNotValidFieldException ex) {
+        ExceptionDetails details = new ExceptionDetails(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                "",
+                LocalDateTime.now(),
+                null
+        );
+
+        return new ResponseEntity<>(details, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ProductNotValidParameterException.class)
+    public ResponseEntity<ExceptionDetails> handleInvalidParameterException(ProductNotValidParameterException ex) {
+        ExceptionDetails details = new ExceptionDetails(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                ex.getMessage(),
+                "",
+                LocalDateTime.now(),
+                null
+        );
+
+        return new ResponseEntity<>(details, HttpStatus.BAD_REQUEST);
+    }
+
     //Auth
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ExceptionDetails> handleAccessDeniedException(AccessDeniedException ex) {
@@ -156,6 +204,20 @@ public class AdviceHandler {
         );
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(details);
+    }
+
+    //Jwt
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ExceptionDetails> handleJwtException(JwtException ex) {
+        ExceptionDetails details = new ExceptionDetails(
+                HttpStatus.UNAUTHORIZED.value(),
+                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                INVALID_TOKEN,
+                ex.getMessage(),
+                LocalDateTime.now(),
+                null
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(details);
     }
 
     //General
