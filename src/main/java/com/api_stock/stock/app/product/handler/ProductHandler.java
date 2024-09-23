@@ -1,8 +1,6 @@
 package com.api_stock.stock.app.product.handler;
 
-import com.api_stock.stock.app.product.dto.ProductRequest;
-import com.api_stock.stock.app.product.dto.ProductResponse;
-import com.api_stock.stock.app.product.dto.StockRequest;
+import com.api_stock.stock.app.product.dto.*;
 import com.api_stock.stock.app.product.mapper.IProductRequestMapper;
 import com.api_stock.stock.app.product.mapper.IProductResponseMapper;
 import com.api_stock.stock.domain.brand.api.IBrandServicePort;
@@ -49,5 +47,18 @@ public class ProductHandler implements IProductHandler {
     @Override
     public void updateStock(StockRequest stockRequest) {
         productServicePort.updateStock(stockRequest.getProduct(), stockRequest.getAmount());
+    }
+
+    @Override
+    public CategoryIdListResponse getListCategoriesOfProducts(ProductIdListRequest productIdListRequest) {
+        CategoryIdListResponse categoryIdListResponse = new CategoryIdListResponse();
+        categoryIdListResponse.setCategories(productServicePort.getListCategoriesOfProducts(productIdListRequest.getProducts()));
+
+        return categoryIdListResponse;
+    }
+
+    @Override
+    public Integer getStockOfProduct(ProductIdRequest productIdRequest) {
+        return productServicePort.getStockOfProduct(productIdRequest.getProduct());
     }
 }

@@ -1,5 +1,6 @@
 package com.api_stock.stock.infra.exception;
 
+import com.api_stock.stock.domain.error.ErrorDetail;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,5 +17,5 @@ public class ExceptionDetails {
     private String message;
     private String details;
     private LocalDateTime timestamp;
-    private List<FieldErrorsDetails> errors;
+    private List<ErrorDetail> errors;
 }

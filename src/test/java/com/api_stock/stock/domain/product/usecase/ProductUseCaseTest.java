@@ -4,8 +4,10 @@ import com.api_stock.stock.domain.brand.model.Brand;
 import com.api_stock.stock.domain.category.model.Category;
 import com.api_stock.stock.domain.page.PageData;
 import com.api_stock.stock.domain.product.exception.ProductExceptionMessage;
+import com.api_stock.stock.domain.product.exception.ex.ProductNotFoundByIdException;
 import com.api_stock.stock.domain.product.exception.ex.ProductNotValidFieldException;
 import com.api_stock.stock.domain.product.exception.ex.ProductNotValidParameterException;
+import com.api_stock.stock.domain.product.exception.ex.StockNotValidFieldException;
 import com.api_stock.stock.domain.product.model.Product;
 import com.api_stock.stock.domain.product.spi.IProductPersistencePort;
 import com.api_stock.stock.domain.product.util.ProductConstants;
@@ -23,6 +25,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.api_stock.stock.utils.TestConstants.*;
@@ -251,6 +254,72 @@ class ProductUseCaseTest {
                 sortDirection,
                 sortProperty);
     }
+
+    @Test
+    void shouldThrowExceptionWhenProductIdIsNull() {
+        Long productId = null;
+
+        StockNotValidFieldException exception = assertThrows(
+                StockNotValidFieldException.class, () -> productUseCase.updateStock(productId, VALID_PRODUCT_STOCK)
+        );
+
+        assertEquals(ProductExceptionMessage.EMPTY_PRODUCT, exception.getMessage());
+        verify(productPersistencePort, never()).getProductById(anyLong());
+        verify(productPersistencePort, never()).updateProduct(any(Product.class));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenProductNotFound() {
+        Long productId = 9999L;
+
+        when(productPersistencePort.getProductById(productId)).thenReturn(Optional.empty());
+
+        ProductNotFoundByIdException exception = assertThrows(
+                ProductNotFoundByIdException.class, () -> productUseCase.updateStock(productId, VALID_PRODUCT_STOCK)
+        );
+
+        assertEquals(ProductExceptionMessage.NO_FOUND_PRODUCT, exception.getMessage());
+        verify(productPersistencePort,times(1)).getProductById(productId);
+        verify(productPersistencePort, never()).updateProduct(any(Product.class));
+    }
+
+    @Test
+    void shouldUpdateStockProductSuccessfully() {
+        when(productPersistencePort.getProductById(VALID_PRODUCT_ID)).thenReturn(Optional.ofNullable(product));
+
+        productUseCase.updateStock(VALID_PRODUCT_ID, VALID_PRODUCT_STOCK);
+
+        verify(productPersistencePort, times(1)).getProductById(VALID_PRODUCT_ID);
+        verify(productPersistencePort, times(1)).updateProduct(product);
+    }
+
+    @Test
+    void shouldGetCategoriesProductsSuccessfully() {
+        List<Long> productIds = List.of(1L, 2L, 3L);
+        List<String> expectedCategoryIds = List.of("Category1", "Category2", "Category3");
+
+        when(productPersistencePort.getProductById(anyLong())).thenReturn(Optional.of(product));
+
+        when(productPersistencePort.getListCategoriesOfProducts(productIds)).thenReturn(expectedCategoryIds);
+
+        List<String> result = productUseCase.getListCategoriesOfProducts(productIds);
+
+        assertEquals(expectedCategoryIds, result);
+        verify(productPersistencePort, times(3)).getProductById(anyLong());
+        verify(productPersistencePort, times(1)).getListCategoriesOfProducts(productIds);
+    }
+
+
+    @Test
+    void shouldGetStockProductSuccessfully() {
+        when(productPersistencePort.getProductById(VALID_PRODUCT_ID)).thenReturn(Optional.ofNullable(product));
+
+        Integer result = productUseCase.getStockOfProduct(VALID_PRODUCT_ID);
+
+        assertEquals(VALID_PRODUCT_STOCK, result);
+        verify(productPersistencePort, times(1)).getProductById(VALID_PRODUCT_ID);
+    }
+
 
     private static Stream<Arguments> sortDirectionAndPropertyProvider() {
         return Stream.of(

@@ -17,8 +17,6 @@ public final class ProductConstants {
     public static final String PROPERTY_REGEX = NAME + "|" + BRAND + "|" + CATEGORIES;
     public static final String BRAND_NAME = BRAND + "." + NAME;
 
-    public static final int MIN_AMOUNT_VALUE = 1;
-
     public static final String BRAND_ID_COLUMN = "brand_id";
     public static final String PRODUCT_ID_COLUMN = "product_id";
     public static final String CATEGORY_ID_COLUMN = "category_id";

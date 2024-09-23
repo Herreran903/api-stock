@@ -8,6 +8,7 @@ import com.api_stock.stock.domain.category.exception.ex.CategoryNotValidFieldExc
 import com.api_stock.stock.domain.category.exception.ex.CategoryNotValidParameterException;
 import com.api_stock.stock.domain.brand.exception.ex.BrandAlreadyExistException;
 import com.api_stock.stock.domain.brand.exception.ex.BrandNotValidFieldException;
+import com.api_stock.stock.domain.error.ErrorDetail;
 import com.api_stock.stock.domain.product.exception.ex.ProductNotFoundByIdException;
 import com.api_stock.stock.domain.product.exception.ex.ProductNotValidFieldException;
 import com.api_stock.stock.domain.product.exception.ex.ProductNotValidParameterException;
@@ -223,7 +224,7 @@ public class AdviceHandler {
     //General
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ExceptionDetails> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
-        List<FieldErrorsDetails> errorsDetails = new ArrayList<>();
+        List<ErrorDetail> errorsDetails = new ArrayList<>();
 
         if (ex.getCause() instanceof MismatchedInputException mie) {
             String fieldName = !mie.getPath().isEmpty() ? mie.getPath().get(0).getFieldName() : "Unknown";
@@ -232,7 +233,7 @@ public class AdviceHandler {
                     Objects.requireNonNull(fieldName),
                     Objects.requireNonNull(requiredType));
 
-            errorsDetails.add(new FieldErrorsDetails(fieldName, message));
+            errorsDetails.add(new ErrorDetail(fieldName, message));
         }
 
         ExceptionDetails details = new ExceptionDetails(
@@ -250,8 +251,8 @@ public class AdviceHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExceptionDetails> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
 
-        List<FieldErrorsDetails> errorsDetails = ex.getBindingResult().getFieldErrors().stream()
-                .map(fieldError -> new FieldErrorsDetails(fieldError.getField(), fieldError.getDefaultMessage()))
+        List<ErrorDetail> errorsDetails = ex.getBindingResult().getFieldErrors().stream()
+                .map(fieldError -> new ErrorDetail(fieldError.getField(), fieldError.getDefaultMessage()))
                 .distinct()
                 .toList();
 
@@ -270,13 +271,13 @@ public class AdviceHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ExceptionDetails> handleConstraintViolationException(ConstraintViolationException ex) {
 
-        List<FieldErrorsDetails> errorsDetails = ex.getConstraintViolations().stream()
+        List<ErrorDetail> errorsDetails = ex.getConstraintViolations().stream()
                 .map(constraintViolation -> {
                     String fieldName = constraintViolation.getPropertyPath().toString();
                     fieldName = fieldName.contains(".")
                             ? fieldName.substring(fieldName.lastIndexOf('.') + 1)
                             : fieldName;
-                    return new FieldErrorsDetails(fieldName, constraintViolation.getMessage());
+                    return new ErrorDetail(fieldName, constraintViolation.getMessage());
                 })
                 .toList();
 

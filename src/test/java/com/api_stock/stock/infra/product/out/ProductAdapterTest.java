@@ -12,6 +12,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.data.domain.*;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.api_stock.stock.utils.TestConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -95,6 +96,42 @@ class ProductAdapterTest {
 
         verify(productRepository).findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name")));
         verify(productMapper).toListProduct(entities);
+    }
+
+    @Test
+    void shouldReturnProductSuccessfully() {
+        when(productRepository.findById(VALID_PRODUCT_ID)).thenReturn(Optional.of(productEntity));
+        when(productMapper.toProduct(productEntity)).thenReturn(product);
+
+        Optional<Product> result = productAdapter.getProductById(VALID_PRODUCT_ID);
+
+        assertTrue(result.isPresent());
+        assertEquals(VALID_PRODUCT_ID, result.get().getId());
+
+        verify(productRepository, times(1)).findById(VALID_PRODUCT_ID);
+        verify(productMapper, times(1)).toProduct(productEntity);
+    }
+
+    @Test
+    void shouldReturnEmptyWhenProductNotFound() {
+        when(productRepository.findById(VALID_PRODUCT_ID)).thenReturn(Optional.empty());
+
+        Optional<Product> result = productAdapter.getProductById(VALID_PRODUCT_ID);
+
+        assertFalse(result.isPresent());
+
+        verify(productRepository, times(1)).findById(VALID_PRODUCT_ID);
+        verify(productMapper, never()).toProduct(any(ProductEntity.class));
+    }
+
+    @Test
+    void shouldUpdateProductSuccessfully() {
+        when(productMapper.toEntity(any(Product.class))).thenReturn(productEntity);
+
+        productAdapter.updateProduct(product);
+
+        verify(productMapper, times(1)).toEntity(product);
+        verify(productRepository, times(1)).save(productEntity);
     }
 
 }

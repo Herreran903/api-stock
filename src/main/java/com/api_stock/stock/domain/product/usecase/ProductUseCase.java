@@ -9,6 +9,7 @@ import com.api_stock.stock.domain.product.exception.ex.ProductNotValidFieldExcep
 import com.api_stock.stock.domain.product.exception.ex.ProductNotValidParameterException;
 import com.api_stock.stock.domain.product.exception.ex.StockNotValidFieldException;
 import com.api_stock.stock.domain.product.model.Product;
+import com.api_stock.stock.domain.product.spi.IFeignTransactionAdapterPort;
 import com.api_stock.stock.domain.product.spi.IProductPersistencePort;
 import com.api_stock.stock.domain.product.util.ProductConstants;
 import com.api_stock.stock.domain.util.GlobalConstants;
@@ -26,9 +27,11 @@ import static com.api_stock.stock.domain.util.GlobalExceptionMessage.*;
 
 public class ProductUseCase implements IProductServicePort {
     private final IProductPersistencePort productPersistencePort;
+    private final IFeignTransactionAdapterPort feignSupplyAdapterPort;
 
-    public ProductUseCase(IProductPersistencePort productPersistencePort) {
+    public ProductUseCase(IProductPersistencePort productPersistencePort, IFeignTransactionAdapterPort feignSupplyAdapterPort) {
         this.productPersistencePort = productPersistencePort;
+        this.feignSupplyAdapterPort = feignSupplyAdapterPort;
     }
 
     @Override
@@ -101,17 +104,34 @@ public class ProductUseCase implements IProductServicePort {
         return productPersistencePort.getCategoriesByPage(page, size, sortDirection, sortProperty);
     }
 
+    private Product findProduct(Long productId) {
+        return productPersistencePort.getProductById(productId)
+                .orElseThrow(() -> new ProductNotFoundByIdException(NO_FOUND_PRODUCT));
+    }
+
     @Override
     public void updateStock(Long productId, int amount) {
-
         if (productId == null)
             throw new StockNotValidFieldException(EMPTY_PRODUCT);
 
-        Product product = productPersistencePort.getProductById(productId)
-                        .orElseThrow(() -> new ProductNotFoundByIdException(NO_FOUND_PRODUCT));
+        Product product = findProduct(productId);
 
         product.setStock(product.getStock() + amount);
 
         productPersistencePort.updateProduct(product);
+    }
+
+    @Override
+    public List<String> getListCategoriesOfProducts(List<Long> productIds) {
+        productIds.forEach(this::findProduct);
+
+        return productPersistencePort.getListCategoriesOfProducts(productIds);
+    }
+
+    @Override
+    public Integer getStockOfProduct(Long productId) {
+        Product product = findProduct(productId);
+
+        return product.getStock();
     }
 }
