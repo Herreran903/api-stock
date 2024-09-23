@@ -381,4 +381,52 @@ class ProductControllerTest {
                 GlobalConstants.ASC,
                 ProductConstants.NAME);
     }
+
+    @Test
+    void shouldReturnBadRequestForInvalidProductId() throws Exception {
+        String expectedMessage = GlobalExceptionMessage.INVALID_OBJECT;
+        String expectedErrorMessage = ProductExceptionMessage.EMPTY_PRODUCT;
+
+        String requestBody =
+                "{\"product\":\"\", \"amount\":\"2\"}";
+
+        mvc.perform(post("/product/increase")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(expectedMessage))
+                .andExpect(jsonPath("$.errors[0].field").value("product"))
+                .andExpect(jsonPath("$.errors[0].message").value(expectedErrorMessage));
+    }
+
+    @Test
+    void shouldReturnBadRequestForInvalidAmount() throws Exception {
+        String expectedMessage = GlobalExceptionMessage.INVALID_OBJECT;
+        String expectedErrorMessage = ProductExceptionMessage.EMPTY_AMOUNT;
+
+        String requestBody =
+                "{\"product\":\"1\", \"amount\":\"\"}";
+
+        mvc.perform(post("/product/increase")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(expectedMessage))
+                .andExpect(jsonPath("$.errors[0].field").value("amount"))
+                .andExpect(jsonPath("$.errors[0].message").value(expectedErrorMessage));
+    }
+
+    @Test
+    void shouldReturnOkForValidStockRequest() throws Exception {
+        String requestBody =
+                "{\"product\":\"1\", \"amount\":\"2\"}";
+
+        mvc.perform(post("/product/increase")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+    }
 }

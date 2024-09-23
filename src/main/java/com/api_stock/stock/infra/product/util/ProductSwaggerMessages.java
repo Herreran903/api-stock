@@ -5,12 +5,21 @@ public class ProductSwaggerMessages {
         throw new AssertionError();
     }
 
-    public static final String INCREASE_STOCK_SUMMARY = "Increase product`s stock";
-    public static final String INCREASE_STOCK_DESCRIPTION = "This endpoint allows increase products stock";
-    public static final String INCREASE_STOCK_REQUEST_BODY_DESCRIPTION = "Request body to increase products stock";
-
-    public static final String STOCK_REQUEST_EXAMPLE =
-            "{ \"productId\": 1, " +
+    public static final String INCREASE_STOCK_REQUEST_EXAMPLE =
+            "{\"product\": 1," +
             "\"amount\": 2 }";
 
+    public static final String CREATE_PRODUCT_REQUEST_EXAMPLE =
+            "{\"name\":\"Smartphone\"," +
+            "\"description\":\"Latest model smartphone\"," +
+            "\"price\":699.99," +
+            "\"stock\":50," +
+            "\"brandId\":1," +
+            "\"categoryIds\":[1,2,3] }";
+
+    public static final String GET_STOCK_REQUEST_EXAMPLE =
+            "{\"product\": 1 }";
+
+    public static final String GET_CATEGORIES_REQUEST_EXAMPLE =
+            "{\"products\": [1,2,3] }";
 }

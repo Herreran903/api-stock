@@ -2,6 +2,7 @@ package com.api_stock.stock.app.product.handler;
 
 import com.api_stock.stock.app.product.dto.ProductRequest;
 import com.api_stock.stock.app.product.dto.ProductResponse;
+import com.api_stock.stock.app.product.dto.StockRequest;
 import com.api_stock.stock.app.product.mapper.IProductRequestMapper;
 import com.api_stock.stock.app.product.mapper.IProductResponseMapper;
 import com.api_stock.stock.domain.brand.api.IBrandServicePort;
@@ -107,6 +108,15 @@ class ProductHandlerTest {
 
         verify(productServicePort).getCategoriesByPage(page, size, sortDirection, sortProperty);
         verify(productResponseMapper).toPageResponse(mockProductPage);
+    }
+
+    @Test
+    void shouldCallUpdateStockOnProductServicePort(){
+        StockRequest stockRequest = new StockRequest(VALID_PRODUCT_ID, VALID_PRODUCT_STOCK);
+
+        productServicePort.updateStock(stockRequest.getProduct(), stockRequest.getAmount());
+
+        verify(productServicePort, times(1)).updateStock(stockRequest.getProduct(), stockRequest.getAmount());
     }
 
 }
