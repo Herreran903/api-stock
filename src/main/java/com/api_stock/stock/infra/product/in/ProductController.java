@@ -24,6 +24,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.util.Map;
+
+import static com.api_stock.stock.domain.util.GlobalConstants.*;
+import static com.api_stock.stock.domain.util.GlobalExceptionMessage.*;
 import static com.api_stock.stock.infra.product.util.ProductSwaggerMessages.*;
 import static com.api_stock.stock.infra.util.SwaggerMessages.*;
 import static com.api_stock.stock.infra.util.Urls.PRODUCT_URL;
@@ -33,10 +38,12 @@ import static com.api_stock.stock.infra.util.Urls.PRODUCT_URL;
 @Validated
 public class ProductController {
     private static final String CREATE_PRODUCT_URL = "/create";
+    private static final String FETCH_PRODUCT_CART_URL = "/fetch/cart";
     private static final String FETCH_PRODUCT_URL = "/fetch";
     private static final String INCREASE_STOCK_URL = "/increase";
     private static final String GET_CATEGORIES_URL = "/categories";
     private static final String GET_STOCK_URL = "/stock";
+    private static final String GET_PRICES_URL = "/prices";
 
     private final IProductHandler productHandler;
 
@@ -80,7 +87,7 @@ public class ProductController {
                             schema = @Schema(implementation = int.class)),
                     @Parameter(name = "size", description = "Number of products per page",
                             schema = @Schema(implementation = int.class)),
-                    @Parameter(name = "sortDirection", description = "Sorting direction (ASC for ascending or DESC for descending)",
+                    @Parameter(name = "order", description = "Sorting direction (ASC for ascending or DESC for descending)",
                             schema = @Schema(implementation = String.class)),
                     @Parameter(name = "sortProperty", description = "Property to sort by (e.g., name, brand, or categories)",
                             schema = @Schema(implementation = String.class))
@@ -97,21 +104,21 @@ public class ProductController {
     })
     @GetMapping(FETCH_PRODUCT_URL)
     public ResponseEntity<PageData<ProductResponse>> getProductsByPage(
-            @Min(value = GlobalConstants.MIN_PAGE_NUMBER, message = GlobalExceptionMessage.NO_NEGATIVE_PAGE)
+            @Min(value = GlobalConstants.MIN_PAGE_NUMBER, message = NO_NEGATIVE_PAGE)
             @RequestParam(defaultValue = GlobalConstants.DEFAULT_PAGE_NUMBER)
             int page,
-            @Min(value = GlobalConstants.MIN_PAGE_SIZE, message = GlobalExceptionMessage.GREATER_ZERO_SIZE)
-            @RequestParam(defaultValue = GlobalConstants.DEFAULT_PAGE_SIZE)
+            @Min(value = GlobalConstants.MIN_PAGE_SIZE, message = GREATER_ZERO_SIZE)
+            @RequestParam(defaultValue = DEFAULT_PAGE_SIZE)
             int size,
-            @Pattern(regexp = GlobalConstants.ORDER_REGEX, message = GlobalExceptionMessage.INVALID_SORT_DIRECTION)
-            @RequestParam(defaultValue = GlobalConstants.ASC)
-            String sortDirection,
+            @Pattern(regexp = ORDER_REGEX, message = GlobalExceptionMessage.INVALID_ORDER)
+            @RequestParam(defaultValue = ASC)
+            String order,
             @Pattern(regexp = ProductConstants.PROPERTY_REGEX, message = ProductExceptionMessage.INVALID_PROPERTY_DIRECTION)
             @RequestParam(defaultValue = ProductConstants.NAME)
             String sortProperty) {
-        PageData<ProductResponse> categories = productHandler.getProductsByPage(page, size, sortDirection, sortProperty);
+        PageData<ProductResponse> products = productHandler.getProductsByPage(page, size, order, sortProperty);
 
-        return ResponseEntity.ok(categories);
+        return ResponseEntity.ok(products);
     }
 
     @Operation(
@@ -206,5 +213,99 @@ public class ProductController {
         Integer stock = productHandler.getStockOfProduct(productIdRequest);
 
         return ResponseEntity.ok(stock);
+    }
+
+    @Operation(
+            summary = "Get prices of products",
+            description = "Allows a client to retrieve the prices of a list of products by providing their product IDs",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Request body with product IDs",
+                    content = @Content(
+                            schema = @Schema(implementation = ProductIdListRequest.class),
+                            examples = {
+                                    @ExampleObject(value = GET_PRICES_REQUEST_EXAMPLE)
+                            }
+                    )
+            )
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = CODE_200, description = RESPONSE_200_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = Map.class))
+            ),
+            @ApiResponse(responseCode = CODE_400, description = RESPONSE_400_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ExceptionDetails.class))
+            ),
+            @ApiResponse(responseCode = CODE_500, description = RESPONSE_500_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ExceptionDetails.class))
+            )
+    })
+    @PostMapping(GET_PRICES_URL)
+    @PreAuthorize("hasRole(T(com.api_stock.stock.domain.role.util.RoleEnum).ROLE_CLIENT.toString())")
+    public ResponseEntity<Map<Long, BigDecimal>> getProductsPrice(@Valid @RequestBody ProductIdListRequest productIdListRequest){
+        Map<Long, BigDecimal> prices = productHandler.getProductsPrice(productIdListRequest);
+
+        return ResponseEntity.ok(prices);
+    }
+
+    @Operation(
+            summary = "Get products for cart",
+            description = "Retrieve a paginated list of products based on product IDs, with optional filters for category and brand, and sorting by ascending or descending order",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Request body with product IDs",
+                    content = @Content(
+                            schema = @Schema(implementation = ProductIdListRequest.class),
+                            examples = {
+                                    @ExampleObject(value = FETCH_PRODUCT_CART_REQUEST_EXAMPLE)
+                            }
+                    )
+            ),
+            parameters = {
+                    @Parameter(name = "page", description = "Page number to retrieve (starting from 0)",
+                            schema = @Schema(implementation = Integer.class)),
+                    @Parameter(name = "size", description = "Number of products per page",
+                            schema = @Schema(implementation = Integer.class)),
+                    @Parameter(name = "order", description = "Sorting direction (ASC or DESC)",
+                            schema = @Schema(implementation = String.class)),
+                    @Parameter(name = "category", description = "Category to filter the products by",
+                            schema = @Schema(implementation = String.class)),
+                    @Parameter(name = "brand", description = "Brand to filter the products by",
+                            schema = @Schema(implementation = String.class))
+            }
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = CODE_200, description = RESPONSE_200_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = PageData.class))
+            ),
+            @ApiResponse(responseCode = CODE_400, description = RESPONSE_400_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ExceptionDetails.class))
+            ),
+            @ApiResponse(responseCode = CODE_500, description = RESPONSE_500_DESCRIPTION,
+                    content = @Content(schema = @Schema(implementation = ExceptionDetails.class))
+            )
+    })
+    @PostMapping(FETCH_PRODUCT_CART_URL)
+    @PreAuthorize("hasRole(T(com.api_stock.stock.domain.role.util.RoleEnum).ROLE_CLIENT.toString())")
+    public ResponseEntity<PageData<CartProductResponse>> getProductsByPageAndIds(
+            @Min(value = MIN_PAGE_NUMBER, message = NO_NEGATIVE_PAGE)
+            @RequestParam(defaultValue = DEFAULT_PAGE_NUMBER, required = false)
+            Integer page,
+            @Min(value = MIN_PAGE_SIZE, message = GREATER_ZERO_SIZE)
+            @RequestParam(defaultValue = DEFAULT_PAGE_SIZE, required = false)
+            Integer size,
+            @Pattern(regexp = ORDER_REGEX, message = INVALID_ORDER)
+            @RequestParam(defaultValue = ASC, required = false)
+            String order,
+            @RequestParam(required = false)
+            String category,
+            @RequestParam(required = false)
+            String brand,
+            @Valid
+            @RequestBody
+            ProductIdListRequest productIdListRequest)
+    {
+        PageData<CartProductResponse> products = productHandler.getProductsByPageAndIds(
+                page, size, order, category, brand, productIdListRequest);
+
+        return ResponseEntity.ok(products);
     }
 }

@@ -6,5 +6,5 @@ import com.api_stock.stock.domain.page.PageData;
 
 public interface IBrandHandler {
     void createBrand(BrandRequest brandRequest);
-    PageData<BrandResponse> getBrandsByPage(int page, int size, String sortDirection);
+    PageData<BrandResponse> getBrandsByPage(int page, int size, String order);
 }

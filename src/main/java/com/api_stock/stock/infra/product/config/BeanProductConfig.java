@@ -1,7 +1,6 @@
 package com.api_stock.stock.infra.product.config;
 
 import com.api_stock.stock.domain.product.api.IProductServicePort;
-import com.api_stock.stock.domain.product.spi.IFeignTransactionAdapterPort;
 import com.api_stock.stock.domain.product.spi.IProductPersistencePort;
 import com.api_stock.stock.domain.product.usecase.ProductUseCase;
 import com.api_stock.stock.infra.product.out.IProductMapper;
@@ -16,7 +15,6 @@ import org.springframework.context.annotation.Configuration;
 public class BeanProductConfig {
     private final IProductRepository productRepository;
     private final IProductMapper productMapper;
-    private final IFeignTransactionAdapterPort feignSupplyAdapterPort;
 
     @Bean
     public IProductPersistencePort productPersistence() {
@@ -25,6 +23,6 @@ public class BeanProductConfig {
 
     @Bean
     public IProductServicePort productCreateService() {
-        return new ProductUseCase(productPersistence(), feignSupplyAdapterPort);
+        return new ProductUseCase(productPersistence());
     }
 }

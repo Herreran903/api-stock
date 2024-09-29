@@ -6,5 +6,5 @@ import com.api_stock.stock.domain.page.PageData;
 public interface IBrandServicePort {
     void createBrand(Brand brand);
     Brand getBrandById(Long id);
-    PageData<Brand> getBrandsByPage(int page, int size, String sortDirection);
+    PageData<Brand> getBrandsByPage(int page, int size, String order);
 }

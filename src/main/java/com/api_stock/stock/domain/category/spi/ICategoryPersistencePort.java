@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ICategoryPersistencePort {
     void createCategory(Category category);
-    PageData<Category> getCategoriesByPage(int page, int size, String sortDirection);
+    PageData<Category> getCategoriesByPage(int page, int size, String order);
     Boolean isCategoryPresentByName(String categoryName);
     List<Category> getCategoriesByIds(List<Long> ids);
 }

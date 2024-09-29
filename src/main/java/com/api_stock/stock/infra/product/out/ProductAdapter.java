@@ -31,37 +31,26 @@ public class ProductAdapter implements IProductPersistencePort {
     }
 
     @Override
-    public PageData<Product> getCategoriesByPage(int page, int size, String sortDirection, String sortProperty) {
+    public PageData<Product> getCategoriesByPage(int page, int size, String order, String sortProperty) {
         Page<ProductEntity> productEntityPage = null;
         Pageable sortedPageable;
 
         if (sortProperty.equals(CATEGORIES)){
             sortedPageable = PageRequest.of(page, size);
-            if (sortDirection.equals(ASC))
+            if (order.equals(ASC))
                 productEntityPage = productRepository.findProductsSortedByCategoryAsc(sortedPageable);
 
-            if (sortDirection.equals(DESC))
+            if (order.equals(DESC))
                 productEntityPage = productRepository.findProductsSortedByCategoryDesc(sortedPageable);
         } else {
-            Sort.Direction direction = Sort.Direction.fromString(sortDirection);
             String auxSortProperty = sortProperty.equals(BRAND) ? BRAND_NAME : sortProperty;
-            sortedPageable = PageRequest.of(page, size, Sort.by(direction, auxSortProperty));
+            sortedPageable = createPageRequest(page, size, order, auxSortProperty);
 
             productEntityPage = productRepository.findAll(sortedPageable);
         }
 
         assert productEntityPage != null;
-        List<Product> products = productMapper.toListProduct(productEntityPage.getContent());
-
-        return new PageData<>(
-                products,
-                productEntityPage.getNumber(),
-                (int) productEntityPage.getTotalElements(),
-                productEntityPage.isFirst(),
-                productEntityPage.isLast(),
-                productEntityPage.hasNext(),
-                productEntityPage.hasPrevious()
-        );
+        return productMapper.toPageData(productEntityPage);
     }
 
     @Override
@@ -77,12 +66,47 @@ public class ProductAdapter implements IProductPersistencePort {
     }
 
     @Override
-    public List<String> getListCategoriesOfProducts(List<Long> productIds) {
-        List<ProductEntity> products = productRepository.findAllById(productIds);
+    public List<String> getListCategoriesOfProducts(List<Long> products) {
+        List<ProductEntity> productList = productRepository.findAllById(products);
 
-        return products.stream()
+        return productList.stream()
                 .flatMap(product -> product.getCategories().stream()
                         .map(CategoryEntity::getName))
                 .toList();
+    }
+
+    private Pageable createPageRequest(Integer page, Integer size, String order, String sortProperty) {
+        Sort.Direction direction = Sort.Direction.fromString(order);
+        return PageRequest.of(page, size, Sort.by(direction, sortProperty));
+    }
+
+    private boolean isNotBlank(String str) {
+        return str != null && !str.trim().isEmpty();
+    }
+
+    private Page<ProductEntity> filterProducts(String category, String brand, List<Long> products, Pageable pageable) {
+        if (isNotBlank(category) && isNotBlank(brand)) {
+            return productRepository.findByCategoryAndBrandAndIdIn(category, brand, products, pageable);
+        } else if (isNotBlank(category)) {
+            return productRepository.findByCategoryAndIdIn(category, products, pageable);
+        } else if (isNotBlank(brand)) {
+            return productRepository.findByBrandAndIdIn(brand, products, pageable);
+        } else {
+            return productRepository.findByIdIn(products, pageable);
+        }
+    }
+
+    @Override
+    public PageData<Product> getProductsByPageAndIds(
+            Integer page, Integer size, String order, String category, String brand, List<Long> products) {
+        Pageable sortedPageable = createPageRequest(page, size, order, NAME);
+        Page<ProductEntity> productEntityPage = filterProducts(category, brand, products, sortedPageable);
+
+        return productMapper.toPageData(productEntityPage);
+    }
+
+    @Override
+    public List<Product> getAllProductsByIds(List<Long> products) {
+        return productMapper.toListProduct(productRepository.findAllById(products));
     }
 }

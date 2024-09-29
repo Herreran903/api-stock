@@ -23,8 +23,8 @@ public class CategoryHandler implements ICategoryHandler {
     }
 
     @Override
-    public PageData<CategoryResponse> getCategoriesByPage(int page, int size, String sortDirection) {
-        PageData<Category> categories = categoryServicePort.getCategoriesByPage(page, size, sortDirection);
+    public PageData<CategoryResponse> getCategoriesByPage(int page, int size, String order) {
+        PageData<Category> categories = categoryServicePort.getCategoriesByPage(page, size, order);
 
         return categoryResponseMapper.toPageResponse(categories);
     }
