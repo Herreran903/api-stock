@@ -162,7 +162,7 @@ class BrandUseCaseTest {
                         GlobalConstants.MIN_PAGE_NUMBER,
                         GlobalConstants.MIN_PAGE_SIZE,
                         invalidSortDirection),
-                GlobalExceptionMessage.INVALID_SORT_DIRECTION
+                GlobalExceptionMessage.INVALID_ORDER
         );
     }
 
@@ -201,7 +201,7 @@ class BrandUseCaseTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"ASC", "DESC"})
-    void shouldReturnBrandsPage(String sortDirection) {
+    void shouldReturnBrandsPage(String order) {
         PageData<Brand> expectedBrandPage = new PageData<>(
                 List.of(brand),
                 GlobalConstants.MIN_PAGE_NUMBER,
@@ -215,17 +215,17 @@ class BrandUseCaseTest {
         when(brandPersistencePort.getBrandsByPage(
                 GlobalConstants.MIN_PAGE_NUMBER,
                 GlobalConstants.MIN_PAGE_SIZE,
-                sortDirection)).thenReturn(expectedBrandPage);
+                order)).thenReturn(expectedBrandPage);
 
         PageData<Brand> result = brandUseCase.getBrandsByPage(
                 GlobalConstants.MIN_PAGE_NUMBER,
                 GlobalConstants.MIN_PAGE_SIZE,
-                sortDirection);
+                order);
 
         assertEquals(expectedBrandPage, result);
         verify(brandPersistencePort, times(1)).getBrandsByPage(
                 GlobalConstants.MIN_PAGE_NUMBER,
                 GlobalConstants.MIN_PAGE_SIZE,
-                sortDirection);
+                order);
     }
 }

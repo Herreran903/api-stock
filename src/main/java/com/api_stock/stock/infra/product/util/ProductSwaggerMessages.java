@@ -22,4 +22,10 @@ public class ProductSwaggerMessages {
 
     public static final String GET_CATEGORIES_REQUEST_EXAMPLE =
             "{\"products\": [1,2,3] }";
+
+    public static final String GET_PRICES_REQUEST_EXAMPLE =
+            "{\"products\": [1,2,3] }";
+
+    public static final String FETCH_PRODUCT_CART_REQUEST_EXAMPLE =
+            "{\"products\": [1,2,3] }";
 }

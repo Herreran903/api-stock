@@ -24,7 +24,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -167,7 +169,7 @@ class ProductUseCaseTest {
                         GlobalConstants.MIN_PAGE_SIZE,
                         invalidSortDirection,
                         ProductConstants.NAME),
-                GlobalExceptionMessage.INVALID_SORT_DIRECTION
+                GlobalExceptionMessage.INVALID_ORDER
         );
     }
 
@@ -182,7 +184,7 @@ class ProductUseCaseTest {
                         GlobalConstants.MIN_PAGE_SIZE,
                         GlobalConstants.ASC,
                         invalidSortProperty),
-                GlobalExceptionMessage.INVALID_SORT_DIRECTION
+                GlobalExceptionMessage.INVALID_ORDER
         );
     }
 
@@ -223,8 +225,8 @@ class ProductUseCaseTest {
     }
 
     @ParameterizedTest
-    @MethodSource("sortDirectionAndPropertyProvider")
-    void shouldReturnCategoriesPage(String sortDirection, String sortProperty) {
+    @MethodSource("orderAndPropertyProvider")
+    void shouldReturnCategoriesPage(String order, String sortProperty) {
         PageData<Product> expectedCategoryPage = new PageData<>(
                 List.of(product),
                 GlobalConstants.MIN_PAGE_NUMBER,
@@ -238,20 +240,20 @@ class ProductUseCaseTest {
         when(productPersistencePort.getCategoriesByPage(
                 GlobalConstants.MIN_PAGE_NUMBER,
                 GlobalConstants.MIN_PAGE_SIZE,
-                sortDirection,
+                order,
                 sortProperty)).thenReturn(expectedCategoryPage);
 
         PageData<Product> result = productUseCase.getCategoriesByPage(
                 GlobalConstants.MIN_PAGE_NUMBER,
                 GlobalConstants.MIN_PAGE_SIZE,
-                sortDirection,
+                order,
                 sortProperty);
 
         assertEquals(expectedCategoryPage, result);
         verify(productPersistencePort, times(1)).getCategoriesByPage(
                 GlobalConstants.MIN_PAGE_NUMBER,
                 GlobalConstants.MIN_PAGE_SIZE,
-                sortDirection,
+                order,
                 sortProperty);
     }
 
@@ -320,8 +322,44 @@ class ProductUseCaseTest {
         verify(productPersistencePort, times(1)).getProductById(VALID_PRODUCT_ID);
     }
 
+    @Test
+    void getProductsPriceShouldReturnCorrectPrices() {
+        List<Long> productIds = List.of(VALID_PRODUCT_ID);
+        when(productPersistencePort.getAllProductsByIds(productIds)).thenReturn(List.of(product));
 
-    private static Stream<Arguments> sortDirectionAndPropertyProvider() {
+        Map<Long, BigDecimal> result = productUseCase.getProductsPrice(productIds);
+
+        Map<Long, BigDecimal> expectedPrices = new HashMap<>();
+        expectedPrices.put(VALID_PRODUCT_ID, VALID_PRODUCT_PRICE);
+
+        assertEquals(expectedPrices, result);
+        verify(productPersistencePort, times(1)).getAllProductsByIds(productIds);
+    }
+
+    @Test
+    void getProductsByPageAndIdsShouldReturnPagedProducts() {
+        Integer page = VALID_PAGE;
+        Integer size = VALID_SIZE;
+        String order = GlobalConstants.ASC;
+        String categoryName = VALID_CATEGORY_NAME;
+        String brand = VALID_BRAND_NAME;
+        List<Long> productIds = List.of(VALID_PRODUCT_ID);
+
+        PageData<Product> pagedProducts = new PageData<>(List.of(product), page, size, true, true, false, false);
+
+        when(productPersistencePort.getProductById(VALID_PRODUCT_ID)).thenReturn(Optional.of(product));
+
+        when(productPersistencePort.getProductsByPageAndIds(page, size, order, categoryName, brand, productIds))
+                .thenReturn(pagedProducts);
+
+        PageData<Product> result = productUseCase.getProductsByPageAndIds(page, size, order, categoryName, brand, productIds);
+
+        assertEquals(pagedProducts, result);
+        verify(productPersistencePort, times(1))
+                .getProductsByPageAndIds(page, size, order, categoryName, brand, productIds);
+    }
+
+    private static Stream<Arguments> orderAndPropertyProvider() {
         return Stream.of(
                 Arguments.of(GlobalConstants.ASC, ProductConstants.NAME),
                 Arguments.of(GlobalConstants.ASC, ProductConstants.BRAND),

@@ -19,4 +19,7 @@ public final class TestConstants {
     public static final String VALID_BRAND_DESCRIPTION = "High quality shoes";
     public static final BigDecimal VALID_PRODUCT_PRICE = BigDecimal.TEN;
     public static final Integer VALID_PRODUCT_STOCK = 5;
+    public static final Integer VALID_PAGE = 0;
+    public static final Integer VALID_SIZE = 1;
+
 }

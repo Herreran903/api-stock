@@ -47,9 +47,9 @@ public class BrandUseCase implements IBrandServicePort {
     }
 
     @Override
-    public PageData<Brand> getBrandsByPage(int page, int size, String sortDirection) {
-        if (!(GlobalConstants.DESC.equalsIgnoreCase(sortDirection) || GlobalConstants.ASC.equalsIgnoreCase(sortDirection)))
-            throw new BrandNotValidParameterException(GlobalExceptionMessage.INVALID_SORT_DIRECTION);
+    public PageData<Brand> getBrandsByPage(int page, int size, String order) {
+        if (!(GlobalConstants.DESC.equalsIgnoreCase(order) || GlobalConstants.ASC.equalsIgnoreCase(order)))
+            throw new BrandNotValidParameterException(GlobalExceptionMessage.INVALID_ORDER);
 
         if (page < 0)
             throw new BrandNotValidParameterException(GlobalExceptionMessage.NO_NEGATIVE_PAGE);
@@ -57,7 +57,7 @@ public class BrandUseCase implements IBrandServicePort {
         if (size <= 0)
             throw new BrandNotValidParameterException(GlobalExceptionMessage.GREATER_ZERO_SIZE);
 
-        return brandPersistencePort.getBrandsByPage(page, size, sortDirection);
+        return brandPersistencePort.getBrandsByPage(page, size, order);
     }
 
     @Override

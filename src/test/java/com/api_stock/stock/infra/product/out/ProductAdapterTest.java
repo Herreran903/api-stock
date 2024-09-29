@@ -72,7 +72,7 @@ class ProductAdapterTest {
         //Arrange
         int page = GlobalConstants.MIN_PAGE_NUMBER;
         int size = GlobalConstants.MIN_PAGE_SIZE;
-        String orderDirection = GlobalConstants.ASC;
+        String order = GlobalConstants.ASC;
         String orderProperty = ProductConstants.NAME;
 
         List<ProductEntity> entities = List.of(productEntity, productEntity);
@@ -80,10 +80,13 @@ class ProductAdapterTest {
         when(productRepository.findAll(any(Pageable.class))).thenReturn(pageResult);
 
         List<Product> products = List.of(product, product);
-        when(productMapper.toListProduct(entities)).thenReturn(products);
+
+        PageData<Product> pageData = new PageData<>(products, page, products.size(), true, false, true, false);
+
+        when(productMapper.toPageData(pageResult)).thenReturn(pageData);
 
         //Act
-        PageData<Product> result = productAdapter.getCategoriesByPage(page, size, orderDirection, orderProperty);
+        PageData<Product> result = productAdapter.getCategoriesByPage(page, size, order, orderProperty);
 
         //Assert
         assertEquals(entities.size(), result.getData().size());
@@ -95,7 +98,6 @@ class ProductAdapterTest {
         assertFalse(result.isHasPrevious());
 
         verify(productRepository).findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "name")));
-        verify(productMapper).toListProduct(entities);
     }
 
     @Test
