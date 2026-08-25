@@ -33,8 +33,8 @@ public class BrandAdapter implements IBrandPersistencePort {
     }
 
     @Override
-    public PageData<Brand> getBrandsByPage(int page, int size, String sortDirection) {
-        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+    public PageData<Brand> getBrandsByPage(int page, int size, String order) {
+        Sort.Direction direction = Sort.Direction.fromString(order);
         Pageable sortedPageable = PageRequest.of(page, size, Sort.by(direction, NAME));
 
         Page<BrandEntity> brandEntityPage = brandRepository.findAll(sortedPageable);

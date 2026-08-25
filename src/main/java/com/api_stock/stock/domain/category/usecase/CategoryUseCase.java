@@ -66,10 +66,10 @@ public class CategoryUseCase implements ICategoryServicePort {
 
 
     @Override
-    public PageData<Category> getCategoriesByPage(int page, int size, String sortDirection) {
+    public PageData<Category> getCategoriesByPage(int page, int size, String order) {
 
-        if (!(ASC.equalsIgnoreCase(sortDirection) || DESC.equalsIgnoreCase(sortDirection)))
-            throw new CategoryNotValidParameterException(INVALID_SORT_DIRECTION);
+        if (!(ASC.equalsIgnoreCase(order) || DESC.equalsIgnoreCase(order)))
+            throw new CategoryNotValidParameterException(INVALID_ORDER);
 
         if (page < MIN_PAGE_NUMBER)
             throw new CategoryNotValidParameterException(NO_NEGATIVE_PAGE);
@@ -77,6 +77,6 @@ public class CategoryUseCase implements ICategoryServicePort {
         if (size < MIN_PAGE_SIZE)
             throw new CategoryNotValidParameterException(GREATER_ZERO_SIZE);
 
-        return categoryPersistencePort.getCategoriesByPage(page, size, sortDirection);
+        return categoryPersistencePort.getCategoriesByPage(page, size, order);
     }
 }

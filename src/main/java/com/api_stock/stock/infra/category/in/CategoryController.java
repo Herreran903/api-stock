@@ -63,7 +63,7 @@ public class CategoryController {
             parameters = {
                     @Parameter(name = "page", description = "Page number to retrieve", schema = @Schema(implementation = int.class)),
                     @Parameter(name = "size", description = "Number of categories per page", schema = @Schema(implementation = int.class)),
-                    @Parameter(name = "sortDirection", description = "Sort direction (ASC or DESC)", schema = @Schema(implementation = String.class))
+                    @Parameter(name = "order", description = "Sort direction (ASC or DESC)", schema = @Schema(implementation = String.class))
             }
     )
     @GetMapping(FETCH_CATEGORY_URL)
@@ -74,10 +74,10 @@ public class CategoryController {
             @Min(value = GlobalConstants.MIN_PAGE_SIZE, message = GlobalExceptionMessage.GREATER_ZERO_SIZE)
             @RequestParam(defaultValue = GlobalConstants.DEFAULT_PAGE_SIZE)
             int size,
-            @Pattern(regexp = GlobalConstants.ORDER_REGEX, message = GlobalExceptionMessage.INVALID_SORT_DIRECTION)
+            @Pattern(regexp = GlobalConstants.ORDER_REGEX, message = GlobalExceptionMessage.INVALID_ORDER)
             @RequestParam(defaultValue = GlobalConstants.ASC)
-            String sortDirection) {
-        PageData<CategoryResponse> categories = categoryHandler.getCategoriesByPage(page, size, sortDirection);
+            String order) {
+        PageData<CategoryResponse> categories = categoryHandler.getCategoriesByPage(page, size, order);
 
         return ResponseEntity.ok(categories);
     }

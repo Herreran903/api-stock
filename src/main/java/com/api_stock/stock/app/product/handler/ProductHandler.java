@@ -1,8 +1,6 @@
 package com.api_stock.stock.app.product.handler;
 
-import com.api_stock.stock.app.product.dto.ProductRequest;
-import com.api_stock.stock.app.product.dto.ProductResponse;
-import com.api_stock.stock.app.product.dto.StockRequest;
+import com.api_stock.stock.app.product.dto.*;
 import com.api_stock.stock.app.product.mapper.IProductRequestMapper;
 import com.api_stock.stock.app.product.mapper.IProductResponseMapper;
 import com.api_stock.stock.domain.brand.api.IBrandServicePort;
@@ -15,7 +13,9 @@ import com.api_stock.stock.domain.product.model.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -40,14 +40,38 @@ public class ProductHandler implements IProductHandler {
     }
 
     @Override
-    public PageData<ProductResponse> getProductsByPage(int page, int size, String sortDirection, String sortProperty) {
-        PageData<Product> products = productServicePort.getCategoriesByPage(page, size, sortDirection, sortProperty);
+    public PageData<ProductResponse> getProductsByPage(int page, int size, String order, String sortProperty) {
+        PageData<Product> pageData = productServicePort.getCategoriesByPage(page, size, order, sortProperty);
 
-        return productResponseMapper.toPageResponse(products);
+        return productResponseMapper.toPageResponse(pageData);
     }
 
     @Override
     public void updateStock(StockRequest stockRequest) {
         productServicePort.updateStock(stockRequest.getProduct(), stockRequest.getAmount());
+    }
+
+    @Override
+    public CategoryIdListResponse getListCategoriesOfProducts(ProductIdListRequest productIdListRequest) {
+        CategoryIdListResponse categoryIdListResponse = new CategoryIdListResponse();
+        categoryIdListResponse.setCategories(productServicePort.getListCategoriesOfProducts(productIdListRequest.getProducts()));
+
+        return categoryIdListResponse;
+    }
+
+    @Override
+    public Integer getStockOfProduct(ProductIdRequest productIdRequest) {
+        return productServicePort.getStockOfProduct(productIdRequest.getProduct());
+    }
+
+    @Override
+    public PageData<CartProductResponse> getProductsByPageAndIds(Integer page, Integer size, String order, String category, String brand, ProductIdListRequest productIdListRequest) {
+        PageData<Product> pageData = productServicePort.getProductsByPageAndIds(page, size, order, category, brand, productIdListRequest.getProducts());
+        return productResponseMapper.toPageCartResponse(pageData);
+    }
+
+    @Override
+    public Map<Long, BigDecimal> getProductsPrice(ProductIdListRequest productIdListRequest) {
+        return productServicePort.getProductsPrice(productIdListRequest.getProducts());
     }
 }

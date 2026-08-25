@@ -17,8 +17,8 @@ public final class GlobalExceptionMessage {
     public static final String INVALID_OBJECT =
             "The object data is not valid";
 
-    public static final String INVALID_SORT_DIRECTION =
-            "Sort direction must be 'ASC' or 'DESC'";
+    public static final String INVALID_ORDER =
+            "Order must be 'ASC' or 'DESC'";
 
     public static final String GREATER_ZERO_SIZE =
             "Size must be greater than zero";

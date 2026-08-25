@@ -6,5 +6,5 @@ import com.api_stock.stock.domain.page.PageData;
 
 public interface ICategoryHandler {
     void createBrand(CategoryRequest categoryRequest);
-    PageData<CategoryResponse> getCategoriesByPage(int page, int size, String sortDirection);
+    PageData<CategoryResponse> getCategoriesByPage(int page, int size, String order);
 }

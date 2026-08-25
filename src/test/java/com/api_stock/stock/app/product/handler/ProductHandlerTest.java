@@ -2,6 +2,7 @@ package com.api_stock.stock.app.product.handler;
 
 import com.api_stock.stock.app.product.dto.ProductRequest;
 import com.api_stock.stock.app.product.dto.ProductResponse;
+import com.api_stock.stock.app.product.dto.StockRequest;
 import com.api_stock.stock.app.product.mapper.IProductRequestMapper;
 import com.api_stock.stock.app.product.mapper.IProductResponseMapper;
 import com.api_stock.stock.domain.brand.api.IBrandServicePort;
@@ -91,22 +92,31 @@ class ProductHandlerTest {
     void shouldReturnProductPageWhenParametersAreValid() {
         int page = GlobalConstants.MIN_PAGE_NUMBER;
         int size = Integer.parseInt(GlobalConstants.DEFAULT_PAGE_SIZE);
-        String sortDirection = GlobalConstants.ASC;
+        String order = GlobalConstants.ASC;
         String sortProperty = ProductConstants.NAME;
 
         PageData<Product> mockProductPage = mock(PageData.class);
         PageData<ProductResponse> mockResponsePage = mock(PageData.class);
 
-        when(productServicePort.getCategoriesByPage(page, size, sortDirection, sortProperty)).thenReturn(mockProductPage);
+        when(productServicePort.getCategoriesByPage(page, size, order, sortProperty)).thenReturn(mockProductPage);
         when(productResponseMapper.toPageResponse(mockProductPage)).thenReturn(mockResponsePage);
 
-        PageData<ProductResponse> result = productHandler.getProductsByPage(page, size, sortDirection, sortProperty);
+        PageData<ProductResponse> result = productHandler.getProductsByPage(page, size, order, sortProperty);
 
         assertNotNull(result);
         assertEquals(mockResponsePage, result);
 
-        verify(productServicePort).getCategoriesByPage(page, size, sortDirection, sortProperty);
+        verify(productServicePort).getCategoriesByPage(page, size, order, sortProperty);
         verify(productResponseMapper).toPageResponse(mockProductPage);
+    }
+
+    @Test
+    void shouldCallUpdateStockOnProductServicePort(){
+        StockRequest stockRequest = new StockRequest(VALID_PRODUCT_ID, VALID_PRODUCT_STOCK);
+
+        productServicePort.updateStock(stockRequest.getProduct(), stockRequest.getAmount());
+
+        verify(productServicePort, times(1)).updateStock(stockRequest.getProduct(), stockRequest.getAmount());
     }
 
 }

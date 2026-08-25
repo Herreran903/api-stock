@@ -299,17 +299,17 @@ class ProductControllerTest {
     @Test
     void shouldReturnBadRequestIfSortDirectionIsInvalid() throws Exception {
         String expectedMessage = GlobalExceptionMessage.INVALID_PARAMETERS;
-        String expectedErrorMessage = GlobalExceptionMessage.INVALID_SORT_DIRECTION;
+        String expectedErrorMessage = GlobalExceptionMessage.INVALID_ORDER;
 
         mvc.perform(get("/product/fetch")
                         .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
                         .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
-                        .param("sortDirection", "INVALID")
+                        .param("order", "INVALID")
                         .param("sortProperty", ProductConstants.NAME))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(expectedMessage))
-                .andExpect(jsonPath("$.errors[0].field").value("sortDirection"))
+                .andExpect(jsonPath("$.errors[0].field").value("order"))
                 .andExpect(jsonPath("$.errors[0].message").value(expectedErrorMessage));
     }
 
@@ -321,7 +321,7 @@ class ProductControllerTest {
         mvc.perform(get("/product/fetch")
                         .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
                         .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
-                        .param("sortDirection", GlobalConstants.ASC)
+                        .param("order", GlobalConstants.ASC)
                         .param("sortProperty", "INVALID"))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -338,7 +338,7 @@ class ProductControllerTest {
         mvc.perform(get("/product/fetch")
                         .param("page", "-1")
                         .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
-                        .param("sortDirection", GlobalConstants.ASC)
+                        .param("order", GlobalConstants.ASC)
                         .param("sortProperty", ProductConstants.NAME))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -356,7 +356,7 @@ class ProductControllerTest {
         mvc.perform(get("/product/fetch")
                         .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
                         .param("size", "0")
-                        .param("sortDirection", GlobalConstants.ASC)
+                        .param("order", GlobalConstants.ASC)
                         .param("sortProperty", ProductConstants.NAME))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
@@ -370,7 +370,7 @@ class ProductControllerTest {
         mvc.perform(get("/product/fetch")
                         .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
                         .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
-                        .param("sortDirection", GlobalConstants.ASC)
+                        .param("order", GlobalConstants.ASC)
                         .param("sortProperty", ProductConstants.NAME))
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -380,5 +380,53 @@ class ProductControllerTest {
                 GlobalConstants.MIN_PAGE_SIZE,
                 GlobalConstants.ASC,
                 ProductConstants.NAME);
+    }
+
+    @Test
+    void shouldReturnBadRequestForInvalidProductId() throws Exception {
+        String expectedMessage = GlobalExceptionMessage.INVALID_OBJECT;
+        String expectedErrorMessage = ProductExceptionMessage.EMPTY_PRODUCT;
+
+        String requestBody =
+                "{\"product\":\"\", \"amount\":\"2\"}";
+
+        mvc.perform(post("/product/increase")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(expectedMessage))
+                .andExpect(jsonPath("$.errors[0].field").value("product"))
+                .andExpect(jsonPath("$.errors[0].message").value(expectedErrorMessage));
+    }
+
+    @Test
+    void shouldReturnBadRequestForInvalidAmount() throws Exception {
+        String expectedMessage = GlobalExceptionMessage.INVALID_OBJECT;
+        String expectedErrorMessage = ProductExceptionMessage.EMPTY_AMOUNT;
+
+        String requestBody =
+                "{\"product\":\"1\", \"amount\":\"\"}";
+
+        mvc.perform(post("/product/increase")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(expectedMessage))
+                .andExpect(jsonPath("$.errors[0].field").value("amount"))
+                .andExpect(jsonPath("$.errors[0].message").value(expectedErrorMessage));
+    }
+
+    @Test
+    void shouldReturnOkForValidStockRequest() throws Exception {
+        String requestBody =
+                "{\"product\":\"1\", \"amount\":\"2\"}";
+
+        mvc.perform(post("/product/increase")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andDo(print())
+                .andExpect(status().isNoContent());
     }
 }

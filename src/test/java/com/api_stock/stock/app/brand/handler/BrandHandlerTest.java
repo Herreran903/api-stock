@@ -59,20 +59,20 @@ class BrandHandlerTest {
     void shouldReturnBrandPageWhenParametersAreValid() {
         int page = GlobalConstants.MIN_PAGE_NUMBER;
         int size = Integer.parseInt(GlobalConstants.DEFAULT_PAGE_SIZE);
-        String sortDirection = GlobalConstants.ASC;
+        String order = GlobalConstants.ASC;
 
         PageData<Brand> mockBrandPage = mock(PageData.class);
         PageData<BrandResponse> mockResponsePage = mock(PageData.class);
 
-        when(brandServicePort.getBrandsByPage(page, size, sortDirection)).thenReturn(mockBrandPage);
+        when(brandServicePort.getBrandsByPage(page, size, order)).thenReturn(mockBrandPage);
         when(brandResponseMapper.toPageResponse(mockBrandPage)).thenReturn(mockResponsePage);
 
-        PageData<BrandResponse> result = brandHandler.getBrandsByPage(page, size, sortDirection);
+        PageData<BrandResponse> result = brandHandler.getBrandsByPage(page, size, order);
 
         assertNotNull(result);
         assertEquals(mockResponsePage, result);
 
-        verify(brandServicePort).getBrandsByPage(page, size, sortDirection);
+        verify(brandServicePort).getBrandsByPage(page, size, order);
         verify(brandResponseMapper).toPageResponse(mockBrandPage);
     }
 

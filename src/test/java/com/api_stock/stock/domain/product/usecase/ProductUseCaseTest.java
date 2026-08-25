@@ -4,8 +4,10 @@ import com.api_stock.stock.domain.brand.model.Brand;
 import com.api_stock.stock.domain.category.model.Category;
 import com.api_stock.stock.domain.page.PageData;
 import com.api_stock.stock.domain.product.exception.ProductExceptionMessage;
+import com.api_stock.stock.domain.product.exception.ex.ProductNotFoundByIdException;
 import com.api_stock.stock.domain.product.exception.ex.ProductNotValidFieldException;
 import com.api_stock.stock.domain.product.exception.ex.ProductNotValidParameterException;
+import com.api_stock.stock.domain.product.exception.ex.StockNotValidFieldException;
 import com.api_stock.stock.domain.product.model.Product;
 import com.api_stock.stock.domain.product.spi.IProductPersistencePort;
 import com.api_stock.stock.domain.product.util.ProductConstants;
@@ -22,7 +24,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.api_stock.stock.utils.TestConstants.*;
@@ -164,7 +169,7 @@ class ProductUseCaseTest {
                         GlobalConstants.MIN_PAGE_SIZE,
                         invalidSortDirection,
                         ProductConstants.NAME),
-                GlobalExceptionMessage.INVALID_SORT_DIRECTION
+                GlobalExceptionMessage.INVALID_ORDER
         );
     }
 
@@ -179,7 +184,7 @@ class ProductUseCaseTest {
                         GlobalConstants.MIN_PAGE_SIZE,
                         GlobalConstants.ASC,
                         invalidSortProperty),
-                GlobalExceptionMessage.INVALID_SORT_DIRECTION
+                GlobalExceptionMessage.INVALID_ORDER
         );
     }
 
@@ -220,8 +225,8 @@ class ProductUseCaseTest {
     }
 
     @ParameterizedTest
-    @MethodSource("sortDirectionAndPropertyProvider")
-    void shouldReturnCategoriesPage(String sortDirection, String sortProperty) {
+    @MethodSource("orderAndPropertyProvider")
+    void shouldReturnCategoriesPage(String order, String sortProperty) {
         PageData<Product> expectedCategoryPage = new PageData<>(
                 List.of(product),
                 GlobalConstants.MIN_PAGE_NUMBER,
@@ -235,24 +240,126 @@ class ProductUseCaseTest {
         when(productPersistencePort.getCategoriesByPage(
                 GlobalConstants.MIN_PAGE_NUMBER,
                 GlobalConstants.MIN_PAGE_SIZE,
-                sortDirection,
+                order,
                 sortProperty)).thenReturn(expectedCategoryPage);
 
         PageData<Product> result = productUseCase.getCategoriesByPage(
                 GlobalConstants.MIN_PAGE_NUMBER,
                 GlobalConstants.MIN_PAGE_SIZE,
-                sortDirection,
+                order,
                 sortProperty);
 
         assertEquals(expectedCategoryPage, result);
         verify(productPersistencePort, times(1)).getCategoriesByPage(
                 GlobalConstants.MIN_PAGE_NUMBER,
                 GlobalConstants.MIN_PAGE_SIZE,
-                sortDirection,
+                order,
                 sortProperty);
     }
 
-    private static Stream<Arguments> sortDirectionAndPropertyProvider() {
+    @Test
+    void shouldThrowExceptionWhenProductIdIsNull() {
+        Long productId = null;
+
+        StockNotValidFieldException exception = assertThrows(
+                StockNotValidFieldException.class, () -> productUseCase.updateStock(productId, VALID_PRODUCT_STOCK)
+        );
+
+        assertEquals(ProductExceptionMessage.EMPTY_PRODUCT, exception.getMessage());
+        verify(productPersistencePort, never()).getProductById(anyLong());
+        verify(productPersistencePort, never()).updateProduct(any(Product.class));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenProductNotFound() {
+        Long productId = 9999L;
+
+        when(productPersistencePort.getProductById(productId)).thenReturn(Optional.empty());
+
+        ProductNotFoundByIdException exception = assertThrows(
+                ProductNotFoundByIdException.class, () -> productUseCase.updateStock(productId, VALID_PRODUCT_STOCK)
+        );
+
+        assertEquals(ProductExceptionMessage.NO_FOUND_PRODUCT, exception.getMessage());
+        verify(productPersistencePort,times(1)).getProductById(productId);
+        verify(productPersistencePort, never()).updateProduct(any(Product.class));
+    }
+
+    @Test
+    void shouldUpdateStockProductSuccessfully() {
+        when(productPersistencePort.getProductById(VALID_PRODUCT_ID)).thenReturn(Optional.ofNullable(product));
+
+        productUseCase.updateStock(VALID_PRODUCT_ID, VALID_PRODUCT_STOCK);
+
+        verify(productPersistencePort, times(1)).getProductById(VALID_PRODUCT_ID);
+        verify(productPersistencePort, times(1)).updateProduct(product);
+    }
+
+    @Test
+    void shouldGetCategoriesProductsSuccessfully() {
+        List<Long> productIds = List.of(1L, 2L, 3L);
+        List<String> expectedCategoryIds = List.of("Category1", "Category2", "Category3");
+
+        when(productPersistencePort.getProductById(anyLong())).thenReturn(Optional.of(product));
+
+        when(productPersistencePort.getListCategoriesOfProducts(productIds)).thenReturn(expectedCategoryIds);
+
+        List<String> result = productUseCase.getListCategoriesOfProducts(productIds);
+
+        assertEquals(expectedCategoryIds, result);
+        verify(productPersistencePort, times(3)).getProductById(anyLong());
+        verify(productPersistencePort, times(1)).getListCategoriesOfProducts(productIds);
+    }
+
+
+    @Test
+    void shouldGetStockProductSuccessfully() {
+        when(productPersistencePort.getProductById(VALID_PRODUCT_ID)).thenReturn(Optional.ofNullable(product));
+
+        Integer result = productUseCase.getStockOfProduct(VALID_PRODUCT_ID);
+
+        assertEquals(VALID_PRODUCT_STOCK, result);
+        verify(productPersistencePort, times(1)).getProductById(VALID_PRODUCT_ID);
+    }
+
+    @Test
+    void getProductsPriceShouldReturnCorrectPrices() {
+        List<Long> productIds = List.of(VALID_PRODUCT_ID);
+        when(productPersistencePort.getAllProductsByIds(productIds)).thenReturn(List.of(product));
+
+        Map<Long, BigDecimal> result = productUseCase.getProductsPrice(productIds);
+
+        Map<Long, BigDecimal> expectedPrices = new HashMap<>();
+        expectedPrices.put(VALID_PRODUCT_ID, VALID_PRODUCT_PRICE);
+
+        assertEquals(expectedPrices, result);
+        verify(productPersistencePort, times(1)).getAllProductsByIds(productIds);
+    }
+
+    @Test
+    void getProductsByPageAndIdsShouldReturnPagedProducts() {
+        Integer page = VALID_PAGE;
+        Integer size = VALID_SIZE;
+        String order = GlobalConstants.ASC;
+        String categoryName = VALID_CATEGORY_NAME;
+        String brand = VALID_BRAND_NAME;
+        List<Long> productIds = List.of(VALID_PRODUCT_ID);
+
+        PageData<Product> pagedProducts = new PageData<>(List.of(product), page, size, true, true, false, false);
+
+        when(productPersistencePort.getProductById(VALID_PRODUCT_ID)).thenReturn(Optional.of(product));
+
+        when(productPersistencePort.getProductsByPageAndIds(page, size, order, categoryName, brand, productIds))
+                .thenReturn(pagedProducts);
+
+        PageData<Product> result = productUseCase.getProductsByPageAndIds(page, size, order, categoryName, brand, productIds);
+
+        assertEquals(pagedProducts, result);
+        verify(productPersistencePort, times(1))
+                .getProductsByPageAndIds(page, size, order, categoryName, brand, productIds);
+    }
+
+    private static Stream<Arguments> orderAndPropertyProvider() {
         return Stream.of(
                 Arguments.of(GlobalConstants.ASC, ProductConstants.NAME),
                 Arguments.of(GlobalConstants.ASC, ProductConstants.BRAND),

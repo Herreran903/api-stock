@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static com.api_stock.stock.domain.util.GlobalConstants.*;
+import static com.api_stock.stock.infra.security.jwt.JwtUtility.extractJwt;
 
 @Component
 @RequiredArgsConstructor
@@ -49,10 +50,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private boolean isValidAuthHeader(String authHeader) {
         return authHeader != null && authHeader.startsWith(TOKEN_PREFIX);
-    }
-
-    private String extractJwt(String authHeader) {
-        return authHeader.substring(TOKEN_SUBSTRING);
     }
 
     private boolean isAlreadyAuthenticated() {

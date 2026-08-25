@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface ICategoryServicePort {
     void createCategory(Category category);
-    PageData<Category> getCategoriesByPage(int page, int size, String sortDirection);
+    PageData<Category> getCategoriesByPage(int page, int size, String order);
     List<Category> getCategoriesByIds(List<Long> ids);
 }

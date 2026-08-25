@@ -58,20 +58,20 @@ class CategoryHandlerTest {
     void shouldReturnCategoryPageWhenParametersAreValid() {
         int page = GlobalConstants.MIN_PAGE_NUMBER;
         int size = Integer.parseInt(GlobalConstants.DEFAULT_PAGE_SIZE);
-        String sortDirection = GlobalConstants.ASC;
+        String order = GlobalConstants.ASC;
 
         PageData<Category> mockCategoryPage = mock(PageData.class);
         PageData<CategoryResponse> mockResponsePage = mock(PageData.class);
 
-        when(categoryServicePort.getCategoriesByPage(page, size, sortDirection)).thenReturn(mockCategoryPage);
+        when(categoryServicePort.getCategoriesByPage(page, size, order)).thenReturn(mockCategoryPage);
         when(categoryResponseMapper.toPageResponse(mockCategoryPage)).thenReturn(mockResponsePage);
 
-        PageData<CategoryResponse> result = categoryHandler.getCategoriesByPage(page, size, sortDirection);
+        PageData<CategoryResponse> result = categoryHandler.getCategoriesByPage(page, size, order);
 
         assertNotNull(result);
         assertEquals(mockResponsePage, result);
 
-        verify(categoryServicePort).getCategoriesByPage(page, size, sortDirection);
+        verify(categoryServicePort).getCategoriesByPage(page, size, order);
         verify(categoryResponseMapper).toPageResponse(mockCategoryPage);
     }
 }

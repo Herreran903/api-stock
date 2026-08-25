@@ -6,16 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import static com.api_stock.stock.domain.product.exception.ProductExceptionMessage.*;
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class StockRequest {
-    @NotNull(message = EMPTY_PRODUCT)
+public class ProductIdRequest {
+    @NotNull
     private Long product;
-
-    @NotNull(message = EMPTY_AMOUNT)
-    private Integer amount;
 }

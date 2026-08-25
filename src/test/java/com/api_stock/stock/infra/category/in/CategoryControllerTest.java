@@ -158,16 +158,16 @@ class CategoryControllerTest {
     @Test
     void shouldReturnBadRequestIfSortDirectionIsInvalid() throws Exception {
         String expectedMessage = GlobalExceptionMessage.INVALID_PARAMETERS;
-        String expectedErrorMessage = GlobalExceptionMessage.INVALID_SORT_DIRECTION;
+        String expectedErrorMessage = GlobalExceptionMessage.INVALID_ORDER;
 
         mvc.perform(get("/category/fetch")
                         .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
                         .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
-                        .param("sortDirection", "INVALID"))
+                        .param("order", "INVALID"))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(expectedMessage))
-                .andExpect(jsonPath("$.errors[0].field").value("sortDirection"))
+                .andExpect(jsonPath("$.errors[0].field").value("order"))
                 .andExpect(jsonPath("$.errors[0].message").value(expectedErrorMessage));
     }
 
@@ -179,7 +179,7 @@ class CategoryControllerTest {
         mvc.perform(get("/category/fetch")
                         .param("page", "-1")
                         .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
-                        .param("sortDirection", GlobalConstants.ASC))
+                        .param("order", GlobalConstants.ASC))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(expectedMessage))
@@ -196,7 +196,7 @@ class CategoryControllerTest {
         mvc.perform(get("/category/fetch")
                         .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
                         .param("size", "0")
-                        .param("sortDirection", GlobalConstants.ASC))
+                        .param("order", GlobalConstants.ASC))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value(expectedMessage))
@@ -209,7 +209,7 @@ class CategoryControllerTest {
         mvc.perform(get("/category/fetch")
                         .param("page", String.valueOf(GlobalConstants.MIN_PAGE_NUMBER))
                         .param("size", String.valueOf(GlobalConstants.MIN_PAGE_SIZE))
-                        .param("sortDirection", GlobalConstants.ASC))
+                        .param("order", GlobalConstants.ASC))
                 .andDo(print())
                 .andExpect(status().isOk());
 

@@ -1,5 +1,6 @@
 package com.api_stock.stock.app.product.mapper;
 
+import com.api_stock.stock.app.product.dto.CartProductResponse;
 import com.api_stock.stock.app.product.dto.ProductResponse;
 import com.api_stock.stock.domain.page.PageData;
 import com.api_stock.stock.domain.product.model.Product;
@@ -12,4 +13,5 @@ public interface IProductResponseMapper {
     ProductResponse toResponse(Product product);
     List<ProductResponse> toListResponse(List<Product> products);
     PageData<ProductResponse> toPageResponse(PageData<Product> products);
+    PageData<CartProductResponse> toPageCartResponse(PageData<Product> products);
 }

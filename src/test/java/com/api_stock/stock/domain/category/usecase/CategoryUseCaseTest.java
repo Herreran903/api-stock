@@ -141,7 +141,7 @@ class CategoryUseCaseTest {
                         GlobalConstants.MIN_PAGE_NUMBER,
                         GlobalConstants.MIN_PAGE_SIZE,
                         invalidSortDirection),
-                GlobalExceptionMessage.INVALID_SORT_DIRECTION
+                GlobalExceptionMessage.INVALID_ORDER
         );
     }
 
@@ -180,7 +180,7 @@ class CategoryUseCaseTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"ASC", "DESC"})
-    void shouldReturnCategoriesPage(String sortDirection) {
+    void shouldReturnCategoriesPage(String order) {
         PageData<Category> expectedCategoryPage = new PageData<>(
                 List.of(category),
                 GlobalConstants.MIN_PAGE_NUMBER,
@@ -194,18 +194,18 @@ class CategoryUseCaseTest {
         when(categoryPersistencePort.getCategoriesByPage(
                 GlobalConstants.MIN_PAGE_NUMBER,
                 GlobalConstants.MIN_PAGE_SIZE,
-                sortDirection)).thenReturn(expectedCategoryPage);
+                order)).thenReturn(expectedCategoryPage);
 
         PageData<Category> result = categoryUseCase.getCategoriesByPage(
                 GlobalConstants.MIN_PAGE_NUMBER,
                 GlobalConstants.MIN_PAGE_SIZE,
-                sortDirection);
+                order);
 
         assertEquals(expectedCategoryPage, result);
         verify(categoryPersistencePort, times(1)).getCategoriesByPage(
                 GlobalConstants.MIN_PAGE_NUMBER,
                 GlobalConstants.MIN_PAGE_SIZE,
-                sortDirection);
+                order);
     }
 
     @Test

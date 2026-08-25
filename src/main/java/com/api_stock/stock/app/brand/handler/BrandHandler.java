@@ -23,8 +23,8 @@ public class BrandHandler implements IBrandHandler {
     }
 
     @Override
-    public PageData<BrandResponse> getBrandsByPage(int page, int size, String sortDirection) {
-        PageData<Brand> brands = brandServicePort.getBrandsByPage(page, size, sortDirection);
+    public PageData<BrandResponse> getBrandsByPage(int page, int size, String order) {
+        PageData<Brand> brands = brandServicePort.getBrandsByPage(page, size, order);
 
         return brandResponseMapper.toPageResponse(brands);
     }
